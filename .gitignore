@@ -1,0 +1,5 @@
+addlib
+lib
+linux-gmake
+maxosx-gmake
+windows-vs2010
