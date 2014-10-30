@@ -4,7 +4,7 @@ solution "gmsv_git"
 	location ( os.get() .."-".. _ACTION )
 	flags { "Symbols", "NoEditAndContinue", "StaticRuntime", "NoPCH", "EnableSSE" } --
 	targetdir ( "lib/" .. os.get() .. "/" )
-	includedirs { "include/" }
+	includedirs { "include/", "libgit2/include" }
 
 	links {"addlib/git2"}
 	
