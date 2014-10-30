@@ -28,8 +28,8 @@ ifeq ($(config),release)
   CPPFLAGS  += -MMD -MP $(DEFINES) $(INCLUDES)
   CFLAGS    += $(CPPFLAGS) $(ARCH) -g -msse -O2 -ffast-math -fPIC
   CXXFLAGS  += $(CFLAGS) 
-  LDFLAGS   += -dynamiclib -flat_namespace -LC:/Users/wolf/addlib
-  LIBS      += -lC:/Users/wolf/addlib/git2
+  LDFLAGS   += -dynamiclib -flat_namespace -LC:/Users/wolf/gm_git/addlib
+  LIBS      += -lC:/Users/wolf/gm_git/addlib/git2
   RESFLAGS  += $(DEFINES) $(INCLUDES) 
   LDDEPS    += 
   LINKCMD    = $(CXX) -o $(TARGET) $(OBJECTS) $(LDFLAGS) $(RESOURCES) $(ARCH) $(LIBS)
@@ -50,8 +50,8 @@ ifeq ($(config),releaseuniv32)
   CPPFLAGS  +=  $(DEFINES) $(INCLUDES)
   CFLAGS    += $(CPPFLAGS) $(ARCH) -g -msse -O2 -ffast-math -arch i386 -arch ppc -fPIC
   CXXFLAGS  += $(CFLAGS) 
-  LDFLAGS   += -dynamiclib -flat_namespace -arch i386 -arch ppc -LC:/Users/wolf/addlib
-  LIBS      += -lC:/Users/wolf/addlib/git2
+  LDFLAGS   += -dynamiclib -flat_namespace -arch i386 -arch ppc -LC:/Users/wolf/gm_git/addlib
+  LIBS      += -lC:/Users/wolf/gm_git/addlib/git2
   RESFLAGS  += $(DEFINES) $(INCLUDES) 
   LDDEPS    += 
   LINKCMD    = $(CXX) -o $(TARGET) $(OBJECTS) $(LDFLAGS) $(RESOURCES) $(ARCH) $(LIBS)

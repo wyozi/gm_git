@@ -6,7 +6,7 @@ solution "gmsv_git"
 	targetdir ( "lib/" .. os.get() .. "/" )
 	includedirs { "include/" }
 
-	links {"../addlib/git2"}
+	links {"addlib/git2"}
 	
 	configurations
 	{ 
