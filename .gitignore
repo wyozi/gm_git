@@ -1,5 +1,5 @@
 addlib
 lib
 linux-gmake
-maxosx-gmake
+macosx-gmake
 windows-vs2010
