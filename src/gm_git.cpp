@@ -256,41 +256,6 @@ int Git_Push( lua_State* state )
 	return 1;
 }
 
-/*
-struct MHCBData {
-	git_repository* repo;
-	std::vector<git_merge_head*> *merge_heads;
-
-	lua_State* state;
-
-	const char* branch;
-	const char* target_ref;
-};
-
-int Git_MergeHeadCallback(
-	const char* ref_name,
-	const char* remote_url,
-	const git_oid* oid,
-	unsigned int is_merge,
-	void *payload)
-{
-	MHCBData* data = static_cast<MHCBData*>(payload);
-
-	//GMod_DebugMsg(ref_name, data->state);
-	
-	// We only care about fetchheads that are for merge or are wanted branch name
-	if (is_merge || strcmp(ref_name, data->target_ref) == 0) {
-
-		git_merge_head *their_heads = NULL;
-		int error = git_merge_head_from_fetchhead(&their_heads, data->repo, data->branch, remote_url, oid);
-
-		(*data->merge_heads).push_back(their_heads);
-	}
-
-	return 0;
-}
-*/
-
 int Util_Commit(lua_State* state, git_repository* repo, const char* commitmsg) {
 	git_signature *me = NULL;
 	int error = git_signature_now(&me, "Me", "me@example.com");
@@ -360,6 +325,39 @@ int Util_Commit(lua_State* state, git_repository* repo, const char* commitmsg) {
 	return 1;
 }
 
+struct MHCBData {
+	git_repository* repo;
+	std::vector<git_annotated_commit*> *merge_heads;
+
+	lua_State* state;
+
+	const char* branch;
+	const char* target_ref;
+};
+
+int Git_MergeHeadCallback(
+	const char* ref_name,
+	const char* remote_url,
+	const git_oid* oid,
+	unsigned int is_merge,
+	void *payload)
+{
+	MHCBData* data = static_cast<MHCBData*>(payload);
+
+	//GMod_DebugMsg(ref_name, data->state);
+	
+	// We only care about fetchheads that are for merge or are wanted branch name
+	if (is_merge || strcmp(ref_name, data->target_ref) == 0) {
+
+		git_annotated_commit *their_heads = NULL;
+		int error = git_annotated_commit_from_fetchhead(&their_heads, data->repo, data->branch, remote_url, oid);
+
+		(*data->merge_heads).push_back(their_heads);
+	}
+
+	return 0;
+}
+
 int Git_Merge( lua_State* state )
 {
 	if (LUA->IsType( 1, Type::USERDATA ) )
@@ -368,10 +366,14 @@ int Git_Merge( lua_State* state )
 		git_repository* repo = ( git_repository* )( obj->data );
 
 		const char* target_ref = "refs/heads/master";
-		const char* branch = "master"; // what branch we wanna merge to
+		const char* branch = "master"; // what branch we want to merge to
 		
-		/*
-		std::vector<git_merge_head*> merge_heads;
+		git_merge_options merge_opts = GIT_MERGE_OPTIONS_INIT;
+		git_checkout_options co_opts = GIT_CHECKOUT_OPTIONS_INIT;
+		
+		co_opts.checkout_strategy = GIT_CHECKOUT_SAFE;
+
+		std::vector<git_annotated_commit*> merge_heads;
 
 		MHCBData data;
 		data.merge_heads = &merge_heads;
@@ -382,11 +384,6 @@ int Git_Merge( lua_State* state )
 
 		int error = git_repository_fetchhead_foreach(repo, &Git_MergeHeadCallback, static_cast<void*>(&data));
 		CHECK_GIT_ERR(error);
-
-		git_merge_options merge_opts = GIT_MERGE_OPTIONS_INIT;
-		git_checkout_options co_opts = GIT_CHECKOUT_OPTIONS_INIT;
-
-		co_opts.checkout_strategy = GIT_CHECKOUT_SAFE;
 
 		if (merge_heads.size() == 0) {
 			LUA->PushBool(false);
@@ -403,8 +400,8 @@ int Git_Merge( lua_State* state )
 
 		git_reference_free(ref);
 
-		git_merge_head** pointer = merge_heads.data();
-		const git_merge_head** p = const_cast<const git_merge_head**>(pointer);
+		git_annotated_commit** pointer = merge_heads.data();
+		const git_annotated_commit** p = const_cast<const git_annotated_commit**>(pointer);
 
 		error = git_merge(repo, p, merge_heads.size(), &merge_opts, &co_opts);
 		CHECK_GIT_ERR(error);
@@ -412,9 +409,6 @@ int Git_Merge( lua_State* state )
 		// Done with merge. Changes are staged, now we just need to make an actual commit
 		
 		return Util_Commit(state, repo, "Merging from upstream");
-		*/
-		LUA->PushString("TODO");
-		return 1;
 	}
 	LUA->PushString("missing params: use repo:Merge([remote_branch])");
 	return 1;
