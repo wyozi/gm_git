@@ -50,6 +50,9 @@ void CreateRepositoryMetatable(lua_State* state) {
 
 		LUA->PushCFunction(LuaBridge::Push);
 		LUA->SetField(-2, "Push");
+
+		LUA->PushCFunction(LuaBridge::Commit);
+		LUA->SetField(-2, "Commit");
 		
 		LUA->PushCFunction(LuaBridge::IndexEntries);
 		LUA->SetField(-2, "IndexEntries");

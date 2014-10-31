@@ -57,6 +57,54 @@ void Repository::Push(std::string remotename) {
 	git_remote_free(remote);
 }
 
+void Repository::Commit(std::string commitmsg) {
+	git_signature *me = NULL;
+	int error = git_signature_now(&me, "Me", "me@example.com");
+	if (error < 0) throw GitError(error);
+	
+	//get last commit => parent
+	git_object *git_obj = NULL;
+
+	error = git_revparse_single(&git_obj, repo, "HEAD");
+	if (error < 0) throw GitError(error);
+
+	git_oid *parent_oid = (git_oid *)git_obj; 
+
+	git_commit *parent;
+	error = git_commit_lookup(&parent, repo, parent_oid);
+	if (error < 0) throw GitError(error);
+	
+	// Get tree
+	git_index *index = NULL;
+	error = git_repository_index(&index, repo);
+	if (error < 0) throw GitError(error);
+
+	git_oid tree_oid;
+	error = git_index_write_tree(&tree_oid, index);
+	if (error < 0) throw GitError(error);
+		
+	git_tree *tree = NULL;
+	error = git_tree_lookup(&tree, repo, &tree_oid);
+	if (error < 0) throw GitError(error);
+
+	const git_commit *parents[] = {parent};
+
+	git_oid new_commit_id;
+	error = git_commit_create(
+		&new_commit_id,
+		repo,
+		"HEAD",                      /* name of ref to update */
+		me,                          /* author */
+		me,                          /* committer */
+		"UTF-8",                     /* message encoding */
+		commitmsg.c_str(),  /* message */
+		tree,                        /* root tree */
+		1,                           /* parent count */
+		parents);                    /* parents */
+	if (error < 0) throw GitError(error);
+
+}
+
 std::vector<RepositoryStatusEntry*> GetFilteredStatuses(git_status_list* list, std::function<bool(const git_status_entry*, RepositoryStatusEntry*)> f) {
 	std::vector<RepositoryStatusEntry*> vec;
 	size_t count = git_status_list_entrycount(list);
@@ -220,7 +268,6 @@ void Repository::RemoveFromIndex(std::string path) {
 	error = git_index_write(idx);
 	if (error < 0) throw GitError(error);
 }
-
 
 void Repository::Free() {
 	git_repository_free(repo);

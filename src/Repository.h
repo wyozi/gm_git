@@ -37,6 +37,8 @@ public:
 	void Fetch(std::string remotename = "origin");
 	void Push(std::string remotename = "origin");
 
+	void Commit(std::string commitmsg = "");
+
 	unsigned int GetFileStatus(std::string path);
 	RepositoryStatus* GetStatus();
 

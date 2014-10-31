@@ -14,7 +14,7 @@ int LuaBridge::Fetch(lua_State* state) {
 		return 0;
 
 	const char* remotename = LUA->IsType(2, GarrysMod::Lua::Type::STRING) ? LUA->GetString(2) : "origin";
-	repo->Fetch();
+	repo->Fetch(remotename);
 
 	LUA->PushBool(true);
 	return 1;
@@ -26,7 +26,19 @@ int LuaBridge::Push(lua_State* state) {
 		return 0;
 
 	const char* remotename = LUA->IsType(2, GarrysMod::Lua::Type::STRING) ? LUA->GetString(2) : "origin";
-	repo->Push();
+	repo->Push(remotename);
+
+	LUA->PushBool(true);
+	return 1;
+}
+
+int LuaBridge::Commit(lua_State* state) {
+	Repository* repo = fetchRepository(state);
+	if (!repo)
+		return 0;
+
+	const char* commitmsg = LUA->IsType(2, GarrysMod::Lua::Type::STRING) ? LUA->GetString(2) : "";
+	repo->Commit(commitmsg);
 
 	LUA->PushBool(true);
 	return 1;
