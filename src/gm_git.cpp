@@ -1,21 +1,4 @@
-#include "GarrysMod/Lua/Interface.h"
-#include "git2.h"
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <cstdio>
-#include <vector>
-#include <sstream>
-#include <iostream>
-#include <cassert>
 
-#ifdef _WIN32
-    #include <direct.h>
-    #define GetCurrentDir _getcwd
-#else
-    #include <unistd.h>
-    #define GetCurrentDir getcwd
-#endif
 
 // This should probably be a function..
 #define CHECK_GIT_ERR(errid) if (errid < 0) {\
@@ -26,6 +9,8 @@
 							LUA->PushString(stringStream.str().c_str());\
 							return 2;\
 						 }
+
+
 
 using namespace GarrysMod::Lua;
 
@@ -718,50 +703,5 @@ int indexWrapper( lua_State* state )
 		return 1;
 	}
 
-	return 0;
-}
-
-//
-// Called when you module is opened
-//
-GMOD_MODULE_OPEN()
-{
-
-	git_threads_init();
-
-	LUA->CreateTable();
-
-    LUA->PushCFunction( indexWrapper );
-    LUA->SetField( -2, "__index" );
-
-	metatable_gitrepo = LUA->ReferenceCreate();
-
-	LUA->PushSpecial( GarrysMod::Lua::SPECIAL_GLOB );	// Push global table
-
-	LUA->PushString( "git" );
-	LUA->CreateTable( );
-
-	LUA->PushString( "Open" );
-	LUA->PushCFunction( Git_OpenRepo );
-	LUA->SetTable( -3 );
-
-	LUA->PushString( "Clone" );
-	LUA->PushCFunction( Git_CloneRepo );
-	LUA->SetTable( -3 );
-
-	LUA->PushString( "IsRepository" );
-	LUA->PushCFunction( Git_IsRepository );
-	LUA->SetTable( -3 );
-
-	LUA->SetTable( -3 );
-
-	return 0;
-}
-
-//
-// Called when your module is closed
-//
-GMOD_MODULE_CLOSE()
-{
 	return 0;
 }
