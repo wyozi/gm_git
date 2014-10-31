@@ -14,7 +14,13 @@ int LuaBridge::Fetch(lua_State* state) {
 		return 0;
 
 	const char* remotename = LUA->IsType(2, GarrysMod::Lua::Type::STRING) ? LUA->GetString(2) : "origin";
-	repo->Fetch(remotename);
+	try {
+		repo->Fetch(remotename);
+	} catch (GitError e) {
+		LUA->PushBool(false);
+		LUA->PushString(Wyozi::Util::GitErrorToString(e.error).c_str());
+		return 2;
+	}
 
 	LUA->PushBool(true);
 	return 1;
@@ -26,7 +32,13 @@ int LuaBridge::Push(lua_State* state) {
 		return 0;
 
 	const char* remotename = LUA->IsType(2, GarrysMod::Lua::Type::STRING) ? LUA->GetString(2) : "origin";
-	repo->Push(remotename);
+	try {
+		repo->Push(remotename);
+	} catch (GitError e) {
+		LUA->PushBool(false);
+		LUA->PushString(Wyozi::Util::GitErrorToString(e.error).c_str());
+		return 2;
+	}
 
 	LUA->PushBool(true);
 	return 1;
@@ -38,7 +50,13 @@ int LuaBridge::Commit(lua_State* state) {
 		return 0;
 
 	const char* commitmsg = LUA->IsType(2, GarrysMod::Lua::Type::STRING) ? LUA->GetString(2) : "";
-	repo->Commit(commitmsg);
+	try {
+		repo->Commit(commitmsg);
+	} catch (GitError e) {
+		LUA->PushBool(false);
+		LUA->PushString(Wyozi::Util::GitErrorToString(e.error).c_str());
+		return 2;
+	}
 
 	LUA->PushBool(true);
 	return 1;
@@ -51,7 +69,15 @@ int LuaBridge::IndexEntries(lua_State* state) {
 	
 	LUA->CreateTable();
 
-		std::vector<std::string> entry_paths = repo->GetIndexEntries();
+		std::vector<std::string> entry_paths;
+		try {
+			entry_paths = repo->GetIndexEntries();
+		} catch (GitError e) {
+			LUA->PushBool(false);
+			LUA->PushString(Wyozi::Util::GitErrorToString(e.error).c_str());
+			return 2;
+		}
+
 		int i = 1;
 		for (auto entry = entry_paths.begin(); entry != entry_paths.end(); ++entry) {
 			LUA->PushNumber(i);
@@ -73,8 +99,14 @@ int LuaBridge::AddPathSpecToIndex(lua_State* state) {
 		LUA->ThrowError("AddPathSpecToIndex requires a string argument");
 		return 0;
 	}
-
-	repo->AddPathSpecToIndex(std::string(LUA->GetString(2)));
+	
+	try {
+		repo->AddPathSpecToIndex(std::string(LUA->GetString(2)));
+	} catch (GitError e) {
+		LUA->PushBool(false);
+		LUA->PushString(Wyozi::Util::GitErrorToString(e.error).c_str());
+		return 2;
+	}
 
 	return 0;
 }
@@ -88,8 +120,14 @@ int LuaBridge::AddToIndex(lua_State* state) {
 		LUA->ThrowError("AddToIndex requires a string argument");
 		return 0;
 	}
-
-	repo->AddToIndex(std::string(LUA->GetString(2)));
+	
+	try {
+		repo->AddToIndex(std::string(LUA->GetString(2)));
+	} catch (GitError e) {
+		LUA->PushBool(false);
+		LUA->PushString(Wyozi::Util::GitErrorToString(e.error).c_str());
+		return 2;
+	}
 
 	return 0;
 }
@@ -103,8 +141,14 @@ int LuaBridge::RemoveFromIndex(lua_State* state) {
 		LUA->ThrowError("RemoveFromIndex requires a string argument");
 		return 0;
 	}
-
-	repo->RemoveFromIndex(std::string(LUA->GetString(2)));
+	
+	try {
+		repo->RemoveFromIndex(std::string(LUA->GetString(2)));
+	} catch (GitError e) {
+		LUA->PushBool(false);
+		LUA->PushString(Wyozi::Util::GitErrorToString(e.error).c_str());
+		return 2;
+	}
 
 	return 0;
 }
