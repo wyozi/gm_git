@@ -3,15 +3,21 @@ solution "gmsv_git"
 	language "C++"
 	location ( os.get() .."-".. _ACTION )
 	flags { "Symbols", "NoEditAndContinue", "StaticRuntime", "NoPCH", "EnableSSE" } --
-	targetdir ( "lib/" .. os.get() .. "/" )
-	includedirs { "include/", "libgit2/include" }
+	targetdir ( "builds/" .. os.get() .. "/" )
+	includedirs {"include/"}
 
+	-- Libgit2 stuff. Assumes libgit2 was compiled normally ()
+	includedirs {"libgit2/include"}
 	links {"../libgit2/build/Debug/git2"}
 	
-	configurations
-	{ 
-		"Release"
-	}
+	targetname ("gmsv_luagit")
+	if os.is("windows") then
+		targetsuffix ("_win32")
+	elseif os.is("linux") then
+		targetsuffix ("_linux")
+	end
+
+	configurations { "Release" }
 	
 	configuration "Release"
 		defines { "NDEBUG" }
@@ -19,6 +25,6 @@ solution "gmsv_git"
 	
 	project "gmsv_git"
 		defines { "GMMODULE" }
-		files { "src/**.*", "include/**.*" }
+		files { "src/**.*" }
 		kind "SharedLib"
 		

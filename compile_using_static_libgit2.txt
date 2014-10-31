@@ -1,0 +1,1 @@
+When compiling libgit2 statically on windows, remember to change Runtime Library to Multi Threaded Debug or build a non-debug version of libgit2.
