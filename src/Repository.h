@@ -34,7 +34,17 @@ public:
 	Repository(std::string repo_path);
 	~Repository();
 
+	void Fetch(std::string remotename = "origin");
+	void Push(std::string remotename = "origin");
+
+	unsigned int GetFileStatus(std::string path);
 	RepositoryStatus* GetStatus();
+
+	std::vector<std::string> GetIndexEntries();
+	void AddPathSpecToIndex(std::string pathspec);
+	void AddToIndex(std::string path);
+	void RemoveFromIndex(std::string path);
+
 	void Free();
 	
 private:

@@ -11,6 +11,52 @@ Repository::~Repository() {
 	this->Free();
 }
 
+void Repository::Fetch(std::string remotename) {
+	git_remote* remote = NULL;
+	int error = git_remote_load(&remote, repo, remotename.c_str());
+	if (error < 0) throw GitError(error);
+
+	error = git_remote_fetch(remote, NULL, NULL, NULL);
+	if (error < 0) throw GitError(error);
+
+	git_remote_free(remote);
+}
+
+void Repository::Push(std::string remotename) {
+	git_remote* remote = NULL;
+	int error = git_remote_load(&remote, repo, remotename.c_str());
+	if (error < 0) throw GitError(error);
+	
+	// Connect to remote
+	error = git_remote_connect(remote, GIT_DIRECTION_PUSH);
+	if (error < 0) throw GitError(error);
+
+	// Create push object
+	git_push *push = NULL;
+	error = git_push_new(&push, remote);
+	if (error < 0) throw GitError(error);
+	
+	// TODO this needs to be settable by the user somehow
+	git_push_add_refspec(push, "refs/heads/master:refs/heads/master");
+
+	error = git_push_finish(push);
+	if (error < 0) throw GitError(error);
+
+	error = git_push_unpack_ok(push);
+	if (error < 0) throw GitError(error);
+
+	// TODO this needs to be settable by the user somehow. Probably SetSignature/GetSignature
+	git_signature *me = NULL;
+	error = git_signature_now(&me, "Me", "me@example.com");
+	if (error < 0) throw GitError(error);
+
+	error = git_push_update_tips(push, me, NULL);
+	if (error < 0) throw GitError(error);
+
+	git_push_free(push);
+	git_remote_free(remote);
+}
+
 std::vector<RepositoryStatusEntry*> GetFilteredStatuses(git_status_list* list, std::function<bool(const git_status_entry*, RepositoryStatusEntry*)> f) {
 	std::vector<RepositoryStatusEntry*> vec;
 	size_t count = git_status_list_entrycount(list);
@@ -26,11 +72,13 @@ std::vector<RepositoryStatusEntry*> GetFilteredStatuses(git_status_list* list, s
 }
 
 unsigned int Repository::GetFileStatus(std::string path) {
-	unsigned int* flags;
+	unsigned int f = 0;
+	unsigned int* flags = &f;
+
 	int error = git_status_file(flags, repo, path.c_str());
 	if (error < 0) throw GitError(error);
 
-	return *flags;
+	return f;
 }
 
 RepositoryStatus* Repository::GetStatus() {
@@ -116,6 +164,63 @@ RepositoryStatus* Repository::GetStatus() {
 
 	return status;
 }
+
+std::vector<std::string> Repository::GetIndexEntries() {
+	std::vector<std::string> entries;
+
+	git_index *idx = NULL;
+	int error = git_repository_index(&idx, repo);
+	if (error < 0) throw GitError(error);
+
+	size_t count = git_index_entrycount(idx);
+	for (size_t i=0; i<count; i++) {
+		const git_index_entry *entry = git_index_get_byindex(idx, i);
+		entries.push_back(std::string(entry->path));
+	}
+
+	return entries;
+}
+
+void Repository::AddPathSpecToIndex(std::string pathspec) {
+	char* pathspec_c = const_cast<char *>(pathspec.c_str());
+	char *pathspecs[] = {pathspec_c};
+	git_strarray arr = {pathspecs, 1};
+
+	git_index *idx = NULL;
+	int error = git_repository_index(&idx, repo);
+	if (error < 0) throw GitError(error);
+
+	error = git_index_add_all(idx, &arr, GIT_INDEX_ADD_DEFAULT, NULL, NULL);
+	if (error < 0) throw GitError(error);
+	
+	error = git_index_write(idx);
+	if (error < 0) throw GitError(error);
+}
+
+void Repository::AddToIndex(std::string path) {
+	git_index *idx = NULL;
+	int error = git_repository_index(&idx, repo);
+	if (error < 0) throw GitError(error);
+
+	error = git_index_add_bypath(idx, path.c_str());
+	if (error < 0) throw GitError(error);
+
+	error = git_index_write(idx);
+	if (error < 0) throw GitError(error);
+}
+
+void Repository::RemoveFromIndex(std::string path) {
+	git_index *idx = NULL;
+	int error = git_repository_index(&idx, repo);
+	if (error < 0) throw GitError(error);
+
+	error = git_index_remove_bypath(idx, path.c_str());
+	if (error < 0) throw GitError(error);
+
+	error = git_index_write(idx);
+	if (error < 0) throw GitError(error);
+}
+
 
 void Repository::Free() {
 	git_repository_free(repo);

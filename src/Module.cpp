@@ -44,6 +44,27 @@ void CreateRepositoryMetatable(lua_State* state) {
 	LUA->CreateMetaTableType("GitRepository", 60263);
 		LUA->Push(-1);
 		LUA->SetField(-2, "__index");
+		
+		LUA->PushCFunction(LuaBridge::Fetch);
+		LUA->SetField(-2, "Fetch");
+
+		LUA->PushCFunction(LuaBridge::Push);
+		LUA->SetField(-2, "Push");
+		
+		LUA->PushCFunction(LuaBridge::IndexEntries);
+		LUA->SetField(-2, "IndexEntries");
+
+		LUA->PushCFunction(LuaBridge::AddPathSpecToIndex);
+		LUA->SetField(-2, "AddPathSpecToIndex");
+
+		LUA->PushCFunction(LuaBridge::AddToIndex);
+		LUA->SetField(-2, "AddToIndex");
+
+		LUA->PushCFunction(LuaBridge::RemoveFromIndex);
+		LUA->SetField(-2, "RemoveFromIndex");
+
+		LUA->PushCFunction(LuaBridge::FileStatus);
+		LUA->SetField(-2, "FileStatus");
 
 		LUA->PushCFunction(LuaBridge::Status);
 		LUA->SetField(-2, "Status");
