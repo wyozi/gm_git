@@ -52,21 +52,21 @@ RepositoryStatus* Repository::GetStatus() {
 		if (s->status == GIT_STATUS_CURRENT)
 			return false;
 
-		int type = NULL;
+		std::string type;
 		switch(s->status) {
 		case GIT_STATUS_INDEX_NEW:
-			type = ChangeType::NEW; break;
+			type = ChangeType::enum_strings[ChangeType::NEW]; break;
 		case GIT_STATUS_INDEX_MODIFIED:
-			type = ChangeType::MODIFIED; break;
+			type = ChangeType::enum_strings[ChangeType::MODIFIED]; break;
 		case GIT_STATUS_INDEX_DELETED:
-			type = ChangeType::DELETED; break;
+			type = ChangeType::enum_strings[ChangeType::DELETED]; break;
 		case GIT_STATUS_INDEX_RENAMED:
-			type = ChangeType::RENAMED; break;
+			type = ChangeType::enum_strings[ChangeType::RENAMED]; break;
 		case GIT_STATUS_INDEX_TYPECHANGE:
-			type = ChangeType::TYPECHANGE; break;
+			type = ChangeType::enum_strings[ChangeType::TYPECHANGE]; break;
 		}
 
-		if (type == NULL)
+		if (type.empty())
 			return false;
 
 		rse->type = type;
@@ -82,22 +82,22 @@ RepositoryStatus* Repository::GetStatus() {
 	status->work_dir_changes = GetFilteredStatuses(statuses, [](const git_status_entry* s, RepositoryStatusEntry* rse) -> bool {
 		if (s->status == GIT_STATUS_CURRENT || s->index_to_workdir == NULL)
 			return false;
-
-		int type = NULL;
+		
+		std::string type;
 		switch(s->status) {
 		case GIT_STATUS_WT_NEW:
-			type = ChangeType::NEW; break;
+			type = ChangeType::enum_strings[ChangeType::NEW]; break;
 		case GIT_STATUS_WT_MODIFIED:
-			type = ChangeType::MODIFIED; break;
+			type = ChangeType::enum_strings[ChangeType::MODIFIED]; break;
 		case GIT_STATUS_WT_DELETED:
-			type = ChangeType::DELETED; break;
+			type = ChangeType::enum_strings[ChangeType::DELETED]; break;
 		case GIT_STATUS_WT_RENAMED:
-			type = ChangeType::RENAMED; break;
+			type = ChangeType::enum_strings[ChangeType::RENAMED]; break;
 		case GIT_STATUS_WT_TYPECHANGE:
-			type = ChangeType::TYPECHANGE; break;
+			type = ChangeType::enum_strings[ChangeType::TYPECHANGE]; break;
 		}
 
-		if (type == NULL)
+		if (type.empty())
 			return false;
 
 		rse->type = type;
@@ -107,6 +107,8 @@ RepositoryStatus* Repository::GetStatus() {
 
 		return true;
 	});
+
+	git_status_list_free(statuses);
 
 	return status;
 }
