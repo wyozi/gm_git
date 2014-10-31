@@ -25,6 +25,14 @@ std::vector<RepositoryStatusEntry*> GetFilteredStatuses(git_status_list* list, s
 	return vec;
 }
 
+unsigned int Repository::GetFileStatus(std::string path) {
+	unsigned int* flags;
+	int error = git_status_file(flags, repo, path.c_str());
+	if (error < 0) throw GitError(error);
+
+	return *flags;
+}
+
 RepositoryStatus* Repository::GetStatus() {
 	RepositoryStatus* status = new RepositoryStatus;
 	int error;
@@ -53,18 +61,16 @@ RepositoryStatus* Repository::GetStatus() {
 			return false;
 
 		std::string type;
-		switch(s->status) {
-		case GIT_STATUS_INDEX_NEW:
-			type = ChangeType::enum_strings[ChangeType::NEW]; break;
-		case GIT_STATUS_INDEX_MODIFIED:
-			type = ChangeType::enum_strings[ChangeType::MODIFIED]; break;
-		case GIT_STATUS_INDEX_DELETED:
-			type = ChangeType::enum_strings[ChangeType::DELETED]; break;
-		case GIT_STATUS_INDEX_RENAMED:
-			type = ChangeType::enum_strings[ChangeType::RENAMED]; break;
-		case GIT_STATUS_INDEX_TYPECHANGE:
-			type = ChangeType::enum_strings[ChangeType::TYPECHANGE]; break;
-		}
+		if (s->status & GIT_STATUS_INDEX_NEW)
+			type = ChangeType::enum_strings[ChangeType::NEW];
+		if (s->status & GIT_STATUS_INDEX_MODIFIED)
+			type = ChangeType::enum_strings[ChangeType::MODIFIED];
+		if (s->status & GIT_STATUS_INDEX_DELETED)
+			type = ChangeType::enum_strings[ChangeType::DELETED];
+		if (s->status & GIT_STATUS_INDEX_RENAMED)
+			type = ChangeType::enum_strings[ChangeType::RENAMED];
+		if (s->status & GIT_STATUS_INDEX_TYPECHANGE)
+			type = ChangeType::enum_strings[ChangeType::TYPECHANGE];
 
 		if (type.empty())
 			return false;
@@ -84,18 +90,16 @@ RepositoryStatus* Repository::GetStatus() {
 			return false;
 		
 		std::string type;
-		switch(s->status) {
-		case GIT_STATUS_WT_NEW:
-			type = ChangeType::enum_strings[ChangeType::NEW]; break;
-		case GIT_STATUS_WT_MODIFIED:
-			type = ChangeType::enum_strings[ChangeType::MODIFIED]; break;
-		case GIT_STATUS_WT_DELETED:
-			type = ChangeType::enum_strings[ChangeType::DELETED]; break;
-		case GIT_STATUS_WT_RENAMED:
-			type = ChangeType::enum_strings[ChangeType::RENAMED]; break;
-		case GIT_STATUS_WT_TYPECHANGE:
-			type = ChangeType::enum_strings[ChangeType::TYPECHANGE]; break;
-		}
+		if (s->status & GIT_STATUS_WT_NEW)
+			type = ChangeType::enum_strings[ChangeType::NEW];
+		if (s->status & GIT_STATUS_WT_MODIFIED)
+			type = ChangeType::enum_strings[ChangeType::MODIFIED];
+		if (s->status & GIT_STATUS_WT_DELETED)
+			type = ChangeType::enum_strings[ChangeType::DELETED];
+		if (s->status & GIT_STATUS_WT_RENAMED)
+			type = ChangeType::enum_strings[ChangeType::RENAMED];
+		if (s->status & GIT_STATUS_WT_TYPECHANGE)
+			type = ChangeType::enum_strings[ChangeType::TYPECHANGE];
 
 		if (type.empty())
 			return false;
