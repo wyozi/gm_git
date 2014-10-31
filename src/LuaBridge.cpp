@@ -14,6 +14,15 @@ int LuaBridge::Status(lua_State* state) {
 		return 0;
 
 	RepositoryStatus* status = repo->GetStatus();
+	
+	LUA->CreateTable();
+
+		LUA->PushString("Branch");
+		if (!status->branch.empty())
+			LUA->PushString(status->branch.c_str());
+		else
+			LUA->PushNil();
+		LUA->SetTable(-3);
 
 	return 1;
 }

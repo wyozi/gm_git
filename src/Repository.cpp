@@ -17,7 +17,7 @@ std::vector<RepositoryStatusEntry*> GetFilteredStatuses(git_status_list* list, s
 	
 	for (size_t i=0; i<count; ++i) {
 		const git_status_entry *s = git_status_byindex(list, i);
-		RepositoryStatusEntry* entry;
+		RepositoryStatusEntry* entry = new RepositoryStatusEntry;
 		if (f(s, entry))
 			vec.push_back(entry);
 	}
@@ -26,7 +26,7 @@ std::vector<RepositoryStatusEntry*> GetFilteredStatuses(git_status_list* list, s
 }
 
 RepositoryStatus* Repository::GetStatus() {
-	RepositoryStatus* status;
+	RepositoryStatus* status = new RepositoryStatus;
 	int error;
 
 	// Get current branch
@@ -48,7 +48,7 @@ RepositoryStatus* Repository::GetStatus() {
 	if (error < 0) throw GitError(error);
 
 	// Index changes (aka changes to be committed)
-	auto indexChanges = GetFilteredStatuses(statuses, [](const git_status_entry* s, RepositoryStatusEntry* rse) -> bool {
+	status->index_changes = GetFilteredStatuses(statuses, [](const git_status_entry* s, RepositoryStatusEntry* rse) -> bool {
 		if (s->status == GIT_STATUS_CURRENT)
 			return false;
 
@@ -76,11 +76,10 @@ RepositoryStatus* Repository::GetStatus() {
 
 		return true;
 	});
-	status->index_changes = indexChanges;
 	
 	// Workdirectory changes (aka changes that are _not_ staged for commit)
 	// Note: workdir changes with status of GIT_STATUS_WT_NEW are untracked
-	auto workdirChanges = GetFilteredStatuses(statuses, [](const git_status_entry* s, RepositoryStatusEntry* rse) -> bool {
+	status->work_dir_changes = GetFilteredStatuses(statuses, [](const git_status_entry* s, RepositoryStatusEntry* rse) -> bool {
 		if (s->status == GIT_STATUS_CURRENT || s->index_to_workdir == NULL)
 			return false;
 
@@ -108,7 +107,6 @@ RepositoryStatus* Repository::GetStatus() {
 
 		return true;
 	});
-	status->work_dir_changes = workdirChanges;
 
 	return status;
 }

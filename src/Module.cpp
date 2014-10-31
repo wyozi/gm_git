@@ -45,6 +45,9 @@ void CreateRepositoryMetatable(lua_State* state) {
 		LUA->Push(-1);
 		LUA->SetField(-2, "__index");
 
+		LUA->PushCFunction(LuaBridge::Status);
+		LUA->SetField(-2, "Status");
+
 		LUA->PushCFunction(LuaBridge::Free);
 		LUA->SetField(-2, "Free");
 
