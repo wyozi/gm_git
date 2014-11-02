@@ -8,13 +8,16 @@ solution "gmsv_git"
 
 	-- Libgit2 stuff. Assumes libgit2 was compiled normally ()
 	includedirs {"libgit2/include"}
-	links {"../libgit2/build/Debug/git2"}
+
+	buildoptions "-std=c++11 -stdlib=libc++"
 	
 	targetname ("gmsv_luagit")
 	if os.is("windows") then
 		targetsuffix ("_win32")
+		links {"../libgit2/build/Debug/git2"}
 	elseif os.is("linux") then
 		targetsuffix ("_linux")
+		links {"libgit2/build/git2"}
 	end
 
 	configurations { "Release" }
