@@ -8,8 +8,6 @@ solution "gmsv_git"
 
 	-- Libgit2 stuff. Assumes libgit2 was compiled normally ()
 	includedirs {"libgit2/include"}
-
-	buildoptions "-std=c++11 -stdlib=libc++"
 	
 	targetname ("gmsv_luagit")
 	if os.is("windows") then
@@ -18,6 +16,7 @@ solution "gmsv_git"
 	elseif os.is("linux") then
 		targetsuffix ("_linux")
 		links {"libgit2/build/git2"}
+		buildoptions "-std=c++0x"
 	end
 
 	configurations { "Release" }
