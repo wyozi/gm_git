@@ -207,6 +207,9 @@ void Repository::Merge(MergeOptions* merge_options) {
 		opt.merge_head = merge_head;
 	}
 
+	error = git_repository_state_cleanup(repo);
+	if (error < 0) throw GitError(error);
+
 	this->Commit(&opt);
 }
 
