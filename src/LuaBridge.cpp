@@ -50,11 +50,18 @@ int LuaBridge::Commit(lua_State* state) {
 		return 0;
 
 	const char* commitmsg = LUA->IsType(2, GarrysMod::Lua::Type::STRING) ? LUA->GetString(2) : "";
+	int commitcode;
 	try {
-		repo->Commit(commitmsg);
+		commitcode = repo->Commit(commitmsg);
 	} catch (GitError e) {
 		LUA->PushBool(false);
 		LUA->PushString(Wyozi::Util::GitErrorToString(e.error).c_str());
+		return 2;
+	}
+
+	if (commitcode == GMGIT_COMMIT_NOCHANGES) {
+		LUA->PushBool(false);
+		LUA->PushString("no changes in index");
 		return 2;
 	}
 
