@@ -18,6 +18,23 @@ namespace ChangeType {
 	const std::string enum_strings[] = {"", "new", "modified", "deleted", "renamed", "typechange"};
 }
 
+enum StatusCode {
+	GMGIT_OK = 0,
+
+	// No changes in index
+	GMGIT_COMMIT_NOCHANGES = 1
+};
+
+struct CommitOptions {
+	std::string commitmsg;
+	git_commit* merge_head;
+};
+struct MergeOptions {
+	std::string branch;
+	std::string commitmsg;
+	std::vector<git_annotated_commit*> annotated_commits;
+};
+
 struct RepositoryStatusEntry {
 	std::string path;
 	std::string old_path;
@@ -34,10 +51,20 @@ public:
 	Repository(std::string repo_path);
 	~Repository();
 
+	void SetCredentials(std::string username, std::string password);
+	std::string GetUsername();
+	std::string GetPassword();
+
+	void SetSignature(std::string name, std::string email);
+
 	void Fetch(std::string remotename = "origin");
 	void Push(std::string remotename = "origin");
 
-	void Commit(std::string commitmsg = "");
+	int Commit(CommitOptions* commit_options);
+	int Commit(std::string commitmsg = "");
+	void Merge(MergeOptions* merge_options);
+
+	void Pull(std::string remotename = "origin");
 
 	unsigned int GetFileStatus(std::string path);
 	RepositoryStatus* GetStatus();
@@ -50,9 +77,14 @@ public:
 	void Free();
 	
 private:
-	std::string path;
 	git_repository *repo;
 
+	std::string path;
+
+	std::string username;
+	std::string password;
+
+	git_signature* signature;
 };
 
 struct GitError : std::exception {

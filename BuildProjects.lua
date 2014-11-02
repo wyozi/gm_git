@@ -24,7 +24,6 @@ solution "gmsv_git"
 		flags{ "Optimize", "FloatFast" }
 	
 	project "gmsv_git"
-		defines { "GMMODULE" }
-		files { "src/**.*" }
+		defines {"GMMODULE"}
+		files {"src/**.*"}
 		kind "SharedLib"
-		

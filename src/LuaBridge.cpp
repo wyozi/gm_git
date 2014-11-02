@@ -62,6 +62,24 @@ int LuaBridge::Commit(lua_State* state) {
 	return 1;
 }
 
+int LuaBridge::Pull(lua_State* state) {
+	Repository* repo = fetchRepository(state);
+	if (!repo)
+		return 0;
+
+	const char* remotename = LUA->IsType(2, GarrysMod::Lua::Type::STRING) ? LUA->GetString(2) : "origin";
+	try {
+		repo->Pull(remotename);
+	} catch (GitError e) {
+		LUA->PushBool(false);
+		LUA->PushString(Wyozi::Util::GitErrorToString(e.error).c_str());
+		return 2;
+	}
+
+	LUA->PushBool(true);
+	return 1;
+}
+
 int LuaBridge::IndexEntries(lua_State* state) {
 	Repository* repo = fetchRepository(state);
 	if (!repo)

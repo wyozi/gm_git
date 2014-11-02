@@ -8,6 +8,7 @@ namespace LuaBridge {
 	int Push(lua_State* state);
 	
 	int Commit(lua_State* state);
+	int Pull(lua_State* state);
 
 	int IndexEntries(lua_State* state);
 	int AddPathSpecToIndex(lua_State* state);
