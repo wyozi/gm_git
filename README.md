@@ -7,7 +7,10 @@ gm_git is a binary module for Garry's Mod, that makes it possible to fetch, merg
 
 ## Building
 
+### Requirements
 You need to build libgit2 before building the Garry's Mod module. After cloning gm_git, run ```git submodule update```, and then follow the instructions at https://libgit2.github.com/docs/guides/build-and-link/
+
+You also need premake4. There is a premake4.exe included for windows in the repository.
 
 ### Windows  
 
