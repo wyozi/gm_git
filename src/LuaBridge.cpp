@@ -50,9 +50,20 @@ int LuaBridge::Commit(lua_State* state) {
 		return 0;
 
 	const char* commitmsg = LUA->IsType(2, GarrysMod::Lua::Type::STRING) ? LUA->GetString(2) : "";
+
 	int commitcode;
+	
+	// Don't use CommitOptions* opts = new CommitOptions;
+	// It crashes for some reason.
+	// Probably some scrub reason I feel stupid about after I figure out what it is
+	CommitOptions opts = {};
+
+	if (LUA->IsType(2, GarrysMod::Lua::Type::STRING)) opts.commitmsg = LUA->GetString(2);
+	if (LUA->IsType(3, GarrysMod::Lua::Type::STRING)) opts.committer_name = LUA->GetString(3);
+	if (LUA->IsType(4, GarrysMod::Lua::Type::STRING)) opts.committer_email = LUA->GetString(4);
+
 	try {
-		commitcode = repo->Commit(commitmsg);
+		commitcode = repo->Commit(&opts);
 	} catch (GitError e) {
 		LUA->PushBool(false);
 		LUA->PushString(Wyozi::Util::GitErrorToString(e.error).c_str());

@@ -28,6 +28,9 @@ enum StatusCode {
 struct CommitOptions {
 	std::string commitmsg;
 	git_commit* merge_head;
+
+	std::string committer_name;
+	std::string committer_email;
 };
 struct MergeOptions {
 	std::string branch;
@@ -55,8 +58,6 @@ public:
 	std::string GetUsername();
 	std::string GetPassword();
 
-	void SetSignature(std::string name, std::string email);
-
 	void Fetch(std::string remotename = "origin");
 	void Push(std::string remotename = "origin");
 
@@ -83,8 +84,6 @@ private:
 
 	std::string username;
 	std::string password;
-
-	git_signature* signature;
 };
 
 struct GitError : std::exception {

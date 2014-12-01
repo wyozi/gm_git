@@ -3,10 +3,6 @@
 Repository::Repository(std::string repo_path) : path(repo_path) {
 	int error = git_repository_open(&repo, path.c_str());
 	if (error < 0) throw GitError(error);
-
-	// Let's get a default signature
-	error = git_signature_default(&signature, repo);
-	if (error < 0) throw GitError(error);
 }
 
 Repository::~Repository() {
@@ -22,11 +18,6 @@ std::string Repository::GetUsername() {
 }
 std::string Repository::GetPassword() {
 	return this->password;
-}
-
-void Repository::SetSignature(std::string name, std::string email) {
-	int error = git_signature_now(&signature, name.c_str(), email.c_str());
-	if (error < 0) throw GitError(error);
 }
 
 void Repository::Fetch(std::string remotename) {
@@ -88,11 +79,17 @@ void Repository::Push(std::string remotename) {
 	error = git_push_unpack_ok(push);
 	if (error < 0) throw GitError(error);
 
+	git_signature *signature = NULL;
+
+	error = git_signature_default(&signature, repo);
+	if (error < 0) throw GitError(error);
+
 	error = git_push_update_tips(push, signature, NULL);
 	if (error < 0) throw GitError(error);
 
 	git_push_free(push);
 	git_remote_free(remote);
+	git_signature_free(signature);
 }
 
 int Repository::Commit(CommitOptions* commit_options) {
@@ -144,6 +141,7 @@ int Repository::Commit(CommitOptions* commit_options) {
 	error = git_tree_lookup(&index_tree, repo, &tree_oid);
 	if (error < 0) throw GitError(error);
 
+	// Get parents
 	std::vector<git_commit*> parents;
 	parents.push_back(head);
 	if (commit_options && commit_options->merge_head) {
@@ -151,6 +149,16 @@ int Repository::Commit(CommitOptions* commit_options) {
 	}
 
 	const git_commit **parent_pointer = const_cast<const git_commit**>(parents.data());
+
+	// Get signature
+	git_signature* signature;
+	if (!commit_options->committer_name.empty()) {
+		error = git_signature_now(&signature, commit_options->committer_name.c_str(), commit_options->committer_email.c_str());
+	}
+	else {
+		error = git_signature_default(&signature, repo);
+	}
+	if (error < 0) throw GitError(error);
 
 	git_oid new_commit_id;
 	error = git_commit_create(
@@ -160,7 +168,7 @@ int Repository::Commit(CommitOptions* commit_options) {
 		signature,                          /* author */
 		signature,                          /* committer */
 		"UTF-8",                     /* message encoding */
-		commit_options ? commit_options->commitmsg.c_str() : "",  /* message */
+		commit_options->commitmsg.c_str(),  /* message */
 		index_tree,                        /* root tree */
 		parents.size(),                           /* parent count */
 		parent_pointer);                    /* parents */
@@ -169,13 +177,9 @@ int Repository::Commit(CommitOptions* commit_options) {
 	git_index_free(index);
 	git_commit_free(head);
 	git_tree_free(index_tree);
+	git_signature_free(signature);
 
 	return GMGIT_OK;
-}
-
-int Repository::Commit(std::string commitmsg) {
-	CommitOptions opt = {commitmsg};
-	return this->Commit(&opt);
 }
 
 void Repository::Merge(MergeOptions* merge_options) {
