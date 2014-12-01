@@ -18,6 +18,8 @@ You also need premake4. There is a premake4.exe included for windows in the repo
 - open ```windows-vs2010``` folder and build the project in Visual Studio
 - there should be a ```gmsv_luagit_win32.dll``` in ```builds/windows```
 
+__Note:__ When compiling libgit2 statically (using BUILD_SHARED_LIBS=OFF) on Windows, remember to change Runtime Library to Multi Threaded Debug or you can just build a non-debug version of libgit2.
+
 ### Linux
 - run ```sh BuildProjects.bat``` (don't worry it will work)
 - open ```linux-gmake``` and run ```make```
