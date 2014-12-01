@@ -24,3 +24,7 @@ __Note:__ When compiling libgit2 statically (using BUILD_SHARED_LIBS=OFF) on Win
 - run ```sh BuildProjects.bat``` (don't worry it will work)
 - open ```linux-gmake``` and run ```make```
 - there should be a ```libgmsv_luagit_linux.so``` in ```builds/linux```, rename that to ```gmsv_luagit_linux.dll``` and it is usable as a Garry's Mod module
+
+
+### git2.dll or libgit2.so
+If you did not set libgit2 to produce static libraries, you're gonna need the libgit2 dynamic library in steamapps/common/GarrysMod/ on clients and similar place on servers.
