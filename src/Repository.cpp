@@ -34,7 +34,7 @@ void Repository::Fetch(std::string remotename) {
 	int error = git_remote_load(&remote, repo, remotename.c_str());
 	if (error < 0) throw GitError(error);
 
-	error = git_remote_fetch(remote, NULL, NULL, NULL);
+	error = git_remote_fetch(remote, NULL, NULL);
 	if (error < 0) throw GitError(error);
 
 	git_remote_free(remote);
@@ -184,8 +184,8 @@ void Repository::Merge(MergeOptions* merge_options) {
 	
 	co_opts.checkout_strategy = GIT_CHECKOUT_SAFE_CREATE;
 	
-	git_annotated_commit** pointer = merge_options->annotated_commits.data();
-	const git_annotated_commit** const_pointer = const_cast<const git_annotated_commit**>(pointer);
+	git_merge_head** pointer = merge_options->annotated_commits.data();
+	const git_merge_head** const_pointer = const_cast<const git_merge_head**>(pointer);
 
 	std::cout << &pointer << std::endl;
 
@@ -196,9 +196,9 @@ void Repository::Merge(MergeOptions* merge_options) {
 	
 	CommitOptions opt = {commitmsg};
 
-	// TODO Not sure how git works, but we get the first viable git_annotated_commit from the vector and use the ref from that
+	// TODO Not sure how git works, but we get the first viable git_merge_head from the vector and use the ref from that
 	if (merge_options->annotated_commits.size() > 0) {
-		const git_oid* commit_oid = git_annotated_commit_id(pointer[0]);
+		const git_oid* commit_oid = git_merge_head_id(pointer[0]);
 
 		git_commit *merge_head;
 		error = git_commit_lookup(&merge_head, repo, commit_oid);
@@ -216,16 +216,16 @@ void Repository::Merge(MergeOptions* merge_options) {
 struct fetchhead_cb_data {
 	git_repository* repo;
 	const char* branch;
-	std::vector<git_annotated_commit*> annotated_commits;
+	std::vector<git_merge_head*> annotated_commits;
 };
 
 int fetchhead_callback(const char* ref_name, const char* remote_url, const git_oid* oid, unsigned int is_merge, void *payload) {
 	fetchhead_cb_data* cbdata = static_cast<fetchhead_cb_data*>(payload);
 
 	if (is_merge) {
-		git_annotated_commit* commit;
+		git_merge_head* commit;
 
-		int error = git_annotated_commit_from_fetchhead(&commit, cbdata->repo, cbdata->branch, remote_url, oid);
+		int error = git_merge_head_from_fetchhead(&commit, cbdata->repo, cbdata->branch, remote_url, oid);
 		if (error < 0) throw GitError(error);
 
 		cbdata->annotated_commits.push_back(commit);
@@ -253,7 +253,7 @@ void Repository::Pull(std::string remotename) {
 
 	git_repository_fetchhead_foreach(repo, &fetchhead_callback, static_cast<void*>(cbdata));
 	
-	std::vector<git_annotated_commit*> annotated_commits = cbdata->annotated_commits;
+	std::vector<git_merge_head*> annotated_commits = cbdata->annotated_commits;
 
 	MergeOptions* merge_options = new MergeOptions;
 
