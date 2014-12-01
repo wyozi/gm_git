@@ -375,6 +375,56 @@ RepositoryStatus* Repository::GetStatus() {
 	return status;
 }
 
+RepositoryLog* Repository::GetLog() {
+
+	std::vector<RepositoryLogEntry*> entries;
+
+	git_revwalk *walker;
+	int error = git_revwalk_new(&walker, repo);
+	error = git_revwalk_push_range(walker, "HEAD~20..HEAD");
+	if (error < 0) throw GitError(error);
+
+	git_oid oid;
+	while (!git_revwalk_next(&oid, walker)) {
+		git_commit *commit;
+		error = git_commit_lookup(&commit, repo, &oid);
+		if (error < 0) throw GitError(error);
+
+		RepositoryLogEntry* entry = new RepositoryLogEntry;
+
+		// Oid as a 40 char SHA-1 char pointer
+		const git_oid *oid = git_commit_id(commit);
+		char *oidsha = git_oid_allocfmt(oid);
+		entry->ref = std::string(oidsha);
+
+		free(oidsha);
+
+		// Commit message
+		entry->commitmsg = git_commit_message(commit);
+
+		// Committer
+		const git_signature *committer = git_commit_committer(commit);
+		std::ostringstream committerStream;
+		committerStream << committer->name << " <" << committer->email << ">";
+
+		entry->committer = committerStream.str();
+
+		// Author
+		const git_signature *author = git_commit_author(commit);
+		std::ostringstream authorStream;
+		authorStream << author->name << " <" << author->email << ">";
+
+		entry->author = authorStream.str();
+
+		entries.push_back(entry);
+	}
+	
+	RepositoryLog* log = new RepositoryLog;
+	log->log_entries = entries;
+
+	return log;
+}
+
 std::vector<std::string> Repository::GetIndexEntries() {
 	std::vector<std::string> entries;
 

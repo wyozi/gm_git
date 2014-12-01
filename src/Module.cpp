@@ -15,7 +15,13 @@ int gmod_OpenRepo(lua_State* state) {
 	Repository** repo;
 	Repository* repo_object;
 
-	repo_object = new Repository(std::string(repo_path));
+	try {
+		repo_object = new Repository(std::string(repo_path));
+	} catch (GitError e) {
+		LUA->PushBool(false);
+		LUA->PushString(Wyozi::Util::GitErrorToString(e.error).c_str());
+		return 2;
+	}
 
 	repo = (Repository**)LUA->NewUserdata(sizeof(Repository**));
 	*repo = repo_object;
@@ -74,6 +80,9 @@ void CreateRepositoryMetatable(lua_State* state) {
 
 		LUA->PushCFunction(LuaBridge::Status);
 		LUA->SetField(-2, "Status");
+
+		LUA->PushCFunction(LuaBridge::Log);
+		LUA->SetField(-2, "Log");
 
 		LUA->PushCFunction(LuaBridge::Free);
 		LUA->SetField(-2, "Free");

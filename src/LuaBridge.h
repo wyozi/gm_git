@@ -18,5 +18,7 @@ namespace LuaBridge {
 	int FileStatus(lua_State* state);
 	int Status(lua_State* state);
 
+	int Log(lua_State* state);
+
 	int Free(lua_State* state);
 }

@@ -49,6 +49,19 @@ struct RepositoryStatus {
 	std::vector<RepositoryStatusEntry*> work_dir_changes;
 };
 
+struct RepositoryLogEntry {
+	std::string ref;
+
+	std::string commitmsg;
+
+	std::string committer;
+	std::string author;
+
+};
+struct RepositoryLog {
+	std::vector<RepositoryLogEntry*> log_entries;
+};
+
 class Repository {
 public:
 	Repository(std::string repo_path);
@@ -69,6 +82,8 @@ public:
 
 	unsigned int GetFileStatus(std::string path);
 	RepositoryStatus* GetStatus();
+
+	RepositoryLog* GetLog();
 
 	std::vector<std::string> GetIndexEntries();
 	void AddPathSpecToIndex(std::string pathspec);

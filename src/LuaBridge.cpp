@@ -317,6 +317,51 @@ int LuaBridge::Status(lua_State* state) {
 	return 1;
 }
 
+int LuaBridge::Log(lua_State* state) {
+	Repository* repo = fetchRepository(state);
+	if (!repo)
+		return 0;
+
+	RepositoryLog* log;
+	try {
+		log = repo->GetLog();
+	} catch (GitError e) {
+		LUA->PushBool(false);
+		LUA->PushString(Wyozi::Util::GitErrorToString(e.error).c_str());
+		return 2;
+	}
+	
+	LUA->CreateTable();
+
+	int i = 1;
+	for (auto entry = log->log_entries.begin(); entry != log->log_entries.end(); ++entry) {
+		LUA->PushNumber(i);
+		LUA->CreateTable();
+
+			LUA->PushString("Ref");
+			LUA->PushString((*entry)->ref.c_str());
+			LUA->SetTable(-3);
+
+			LUA->PushString("Message");
+			LUA->PushString((*entry)->commitmsg.c_str());
+			LUA->SetTable(-3);
+
+			LUA->PushString("Committer");
+			LUA->PushString((*entry)->committer.c_str());
+			LUA->SetTable(-3);
+
+			LUA->PushString("Author");
+			LUA->PushString((*entry)->author.c_str());
+			LUA->SetTable(-3);
+			
+		LUA->SetTable(-3);
+		i++;
+	}
+
+	return 1;
+}
+
+
 int LuaBridge::Free(lua_State* state) {
 	Repository* repo = fetchRepository(state);
 	if (!repo)
