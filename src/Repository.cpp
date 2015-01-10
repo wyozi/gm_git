@@ -488,6 +488,83 @@ void Repository::RemoveIndexEntry(std::string path) {
 	if (error < 0) throw GitError(error);
 }
 
+struct diff_cb_data {
+	std::ostringstream stream;
+};
+
+int diff_callback(const git_diff_delta *delta,
+	const git_diff_hunk *hunk,
+	const git_diff_line *line,
+	void *payload)
+{
+	diff_cb_data* cbdata = static_cast<diff_cb_data*>(payload);
+
+	std::string str = std::string(line->content, line->content_len);
+	cbdata->stream << str;
+
+	return 0;
+}
+
+std::string diffToString(git_diff* diff) {
+	diff_cb_data* cbdata = new diff_cb_data;
+	int error = git_diff_print(diff, GIT_DIFF_FORMAT_PATCH, &diff_callback, static_cast<void*>(cbdata));
+	if (error < 0) throw GitError(error);
+
+	std::string str = cbdata->stream.str();
+
+	delete cbdata;
+
+	return str;
+}
+
+std::string Repository::DiffIndexToWorkdir() {
+	git_diff *diff = NULL;
+	int error = git_diff_index_to_workdir(&diff, repo, NULL, NULL);
+	if (error < 0) throw GitError(error);
+	
+	std::string str = diffToString(diff);
+
+	git_diff_free(diff);
+	return str;
+}
+
+std::string Repository::DiffHEADToIndex() {
+	git_object *obj = NULL;
+	int error = git_revparse_single(&obj, repo, "HEAD^{tree}");
+		if (error < 0) throw GitError(error);
+
+	git_tree *tree = NULL;
+	error = git_tree_lookup(&tree, repo, git_object_id(obj));
+		if (error < 0) throw GitError(error);
+
+	git_diff *diff = NULL;
+	error = git_diff_tree_to_index(&diff, repo, tree, NULL, NULL);
+	if (error < 0) throw GitError(error);
+
+	std::string str = diffToString(diff);
+
+	git_diff_free(diff);
+	return str;
+}
+std::string Repository::DiffHEADToWorkdir() {
+	git_object *obj = NULL;
+	int error = git_revparse_single(&obj, repo, "HEAD^{tree}");
+	if (error < 0) throw GitError(error);
+
+	git_tree *tree = NULL;
+	error = git_tree_lookup(&tree, repo, git_object_id(obj));
+	if (error < 0) throw GitError(error);
+
+	git_diff *diff = NULL;
+	error = git_diff_tree_to_workdir_with_index(&diff, repo, tree, NULL);
+	if (error < 0) throw GitError(error);
+	
+	std::string str = diffToString(diff);
+
+	git_diff_free(diff);
+	return str;
+}
+
 void Repository::Free() {
 	git_repository_free(repo);
 }

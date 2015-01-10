@@ -327,6 +327,49 @@ int LuaBridge::Log(lua_State* state) {
 	return 1;
 }
 
+int LuaBridge::DiffIndexToWorkdir(lua_State* state) {
+	Repository* repo = fetchRepository(state);
+	CHECK_REPO(repo)
+	
+	try {
+		std::string diff = repo->DiffIndexToWorkdir();
+
+		LUA->PushString(diff.c_str());
+		return 1;
+	} catch (GitError e) {
+		return pushErrorString(state, e);
+	}
+}
+
+int LuaBridge::DiffHEADToIndex(lua_State* state) {
+	Repository* repo = fetchRepository(state);
+	CHECK_REPO(repo)
+	
+	try {
+		std::string diff = repo->DiffHEADToIndex();
+
+		LUA->PushString(diff.c_str());
+		return 1;
+	} catch (GitError e) {
+		return pushErrorString(state, e);
+	}
+}
+
+
+int LuaBridge::DiffHEADToWorkdir(lua_State* state) {
+	Repository* repo = fetchRepository(state);
+	CHECK_REPO(repo)
+	
+	try {
+		std::string diff = repo->DiffHEADToWorkdir();
+
+		LUA->PushString(diff.c_str());
+		return 1;
+	} catch (GitError e) {
+		return pushErrorString(state, e);
+	}
+}
+
 
 int LuaBridge::Free(lua_State* state) {
 	Repository* repo = fetchRepository(state);

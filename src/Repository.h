@@ -90,6 +90,10 @@ public:
 	void AddIndexEntry(std::string path);
 	void RemoveIndexEntry(std::string path);
 
+	std::string DiffIndexToWorkdir();
+	std::string DiffHEADToIndex();
+	std::string DiffHEADToWorkdir();
+
 	void Free();
 	
 private:

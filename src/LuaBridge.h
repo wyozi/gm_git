@@ -20,5 +20,9 @@ namespace LuaBridge {
 
 	int Log(lua_State* state);
 
+	int DiffIndexToWorkdir(lua_State* state);
+	int DiffHEADToIndex(lua_State* state);
+	int DiffHEADToWorkdir(lua_State* state);
+
 	int Free(lua_State* state);
 }

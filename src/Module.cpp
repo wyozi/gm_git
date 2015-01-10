@@ -72,6 +72,15 @@ void CreateRepositoryMetatable(lua_State* state) {
 
 		LUA->PushCFunction(LuaBridge::Log);
 		LUA->SetField(-2, "Log");
+
+		LUA->PushCFunction(LuaBridge::DiffIndexToWorkdir);
+		LUA->SetField(-2, "DiffIndexToWorkdir");
+		
+		LUA->PushCFunction(LuaBridge::DiffHEADToIndex);
+		LUA->SetField(-2, "DiffHEADToIndex");
+
+		LUA->PushCFunction(LuaBridge::DiffHEADToWorkdir);
+		LUA->SetField(-2, "DiffHEADToWorkdir");
 	LUA->Pop();
 }
 
