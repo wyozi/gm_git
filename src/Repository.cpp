@@ -381,7 +381,9 @@ RepositoryLog* Repository::GetLog() {
 
 	git_revwalk *walker;
 	int error = git_revwalk_new(&walker, repo);
-	error = git_revwalk_push_range(walker, "HEAD~20..HEAD");
+	
+	error = git_revwalk_push_head(walker);
+	//error = git_revwalk_push_range(walker, "HEAD~20..HEAD");
 	if (error < 0) throw GitError(error);
 
 	git_oid oid;
@@ -417,10 +419,15 @@ RepositoryLog* Repository::GetLog() {
 		entry->author = authorStream.str();
 
 		entries.push_back(entry);
+
+		if (entries.size() >= 20)
+			break;
 	}
 	
 	RepositoryLog* log = new RepositoryLog;
 	log->log_entries = entries;
+
+	git_revwalk_free(walker);
 
 	return log;
 }
