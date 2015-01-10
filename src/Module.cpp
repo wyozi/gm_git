@@ -31,6 +31,18 @@ int gmod_IsRepo(lua_State* state) {
 	return 1;
 }
 
+int gmod_Version(lua_State* state) {
+	int major, minor, rev;
+	git_libgit2_version(&major, &minor, &rev);
+
+	std::ostringstream ostr;
+	ostr << "gm_git v0.0.1-DEV \n";
+	ostr << "libgit2 v" << major << "." << minor << "." << rev;
+
+	LUA->PushString(ostr.str().c_str());
+	return 1;
+}
+
 void CreateRepositoryMetatable(lua_State* state) {
 
 	LUA->CreateMetaTableType("GitRepository", 60263);
@@ -92,6 +104,10 @@ void CreateGModLibrary(lua_State* state) {
 
 			LUA->PushCFunction(gmod_IsRepo);
 			LUA->SetField(-2, "IsRepository");
+
+			LUA->PushCFunction(gmod_Version);
+			LUA->SetField(-2, "Version");
+
 		LUA->SetField(-2, "git");
 	LUA->Pop();
 }
