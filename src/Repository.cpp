@@ -510,6 +510,10 @@ int diff_callback(const git_diff_delta *delta,
 	case GIT_DIFF_LINE_DEL_EOFNL:
 		cbdata->stream << "-";
 		break;
+	case GIT_DIFF_LINE_HUNK_HDR:
+	case GIT_DIFF_LINE_FILE_HDR:
+		// Add no space
+		break;
 	default:
 		cbdata->stream << " ";
 		break;
