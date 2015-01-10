@@ -132,8 +132,9 @@ int LuaBridge::AddPathSpecToIndex(lua_State* state) {
 	} catch (GitError e) {
 		return pushErrorString(state, e);
 	}
-
-	return 0;
+	
+	LUA->PushBool(true);
+	return 1;
 }
 
 int LuaBridge::AddIndexEntry(lua_State* state) {
@@ -147,8 +148,9 @@ int LuaBridge::AddIndexEntry(lua_State* state) {
 	} catch (GitError e) {
 		return pushErrorString(state, e);
 	}
-
-	return 0;
+	
+	LUA->PushBool(true);
+	return 1;
 }
 
 int LuaBridge::RemoveIndexEntry(lua_State* state) {
@@ -162,8 +164,9 @@ int LuaBridge::RemoveIndexEntry(lua_State* state) {
 	} catch (GitError e) {
 		return pushErrorString(state, e);
 	}
-
-	return 0;
+	
+	LUA->PushBool(true);
+	return 1;
 }
 
 int LuaBridge::FileStatus(lua_State* state) {
@@ -331,6 +334,7 @@ int LuaBridge::Free(lua_State* state) {
 
 	repo->Free();
 	repo = NULL;
-
+	
+	LUA->PushBool(true);
 	return 1;
 }
