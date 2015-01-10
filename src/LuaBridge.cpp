@@ -7,6 +7,10 @@ Repository * fetchRepository(lua_State* state) {
 	}
 	return *(Repository**)LUA->GetUserdata(1);
 }
+#define CHECK_REPO(repo) if(!repo) { \
+	LUA->ThrowError("Repository pointer is NULL!!"); \
+	return 0; \
+}
 
 int pushErrorString(lua_State* state, const GitError& e) {
 	LUA->PushBool(false);
@@ -16,8 +20,7 @@ int pushErrorString(lua_State* state, const GitError& e) {
 
 int LuaBridge::Fetch(lua_State* state) {
 	Repository* repo = fetchRepository(state);
-	if (!repo)
-		return 0;
+	CHECK_REPO(repo)
 
 	const char* remotename = LUA->IsType(2, GarrysMod::Lua::Type::STRING) ? LUA->GetString(2) : "origin";
 	try {
@@ -32,8 +35,7 @@ int LuaBridge::Fetch(lua_State* state) {
 
 int LuaBridge::Push(lua_State* state) {
 	Repository* repo = fetchRepository(state);
-	if (!repo)
-		return 0;
+	CHECK_REPO(repo)
 
 	const char* remotename = LUA->IsType(2, GarrysMod::Lua::Type::STRING) ? LUA->GetString(2) : "origin";
 	try {
@@ -48,8 +50,7 @@ int LuaBridge::Push(lua_State* state) {
 
 int LuaBridge::Commit(lua_State* state) {
 	Repository* repo = fetchRepository(state);
-	if (!repo)
-		return 0;
+	CHECK_REPO(repo)
 
 	const char* commitmsg = LUA->IsType(2, GarrysMod::Lua::Type::STRING) ? LUA->GetString(2) : "";
 
@@ -82,8 +83,7 @@ int LuaBridge::Commit(lua_State* state) {
 
 int LuaBridge::Pull(lua_State* state) {
 	Repository* repo = fetchRepository(state);
-	if (!repo)
-		return 0;
+	CHECK_REPO(repo)
 
 	const char* remotename = LUA->IsType(2, GarrysMod::Lua::Type::STRING) ? LUA->GetString(2) : "origin";
 	try {
@@ -98,8 +98,7 @@ int LuaBridge::Pull(lua_State* state) {
 
 int LuaBridge::IndexEntries(lua_State* state) {
 	Repository* repo = fetchRepository(state);
-	if (!repo)
-		return 0;
+	CHECK_REPO(repo)
 	
 	LUA->CreateTable();
 
@@ -124,8 +123,7 @@ int LuaBridge::IndexEntries(lua_State* state) {
 
 int LuaBridge::AddPathSpecToIndex(lua_State* state) {
 	Repository* repo = fetchRepository(state);
-	if (!repo)
-		return 0;
+	CHECK_REPO(repo)
 	
 	LUA->CheckString(2);
 	
@@ -140,8 +138,7 @@ int LuaBridge::AddPathSpecToIndex(lua_State* state) {
 
 int LuaBridge::AddIndexEntry(lua_State* state) {
 	Repository* repo = fetchRepository(state);
-	if (!repo)
-		return 0;
+	CHECK_REPO(repo)
 	
 	LUA->CheckString(2);
 	
@@ -156,8 +153,7 @@ int LuaBridge::AddIndexEntry(lua_State* state) {
 
 int LuaBridge::RemoveIndexEntry(lua_State* state) {
 	Repository* repo = fetchRepository(state);
-	if (!repo)
-		return 0;
+	CHECK_REPO(repo)
 	
 	LUA->CheckString(2);
 	
@@ -172,12 +168,9 @@ int LuaBridge::RemoveIndexEntry(lua_State* state) {
 
 int LuaBridge::FileStatus(lua_State* state) {
 	Repository* repo = fetchRepository(state);
-	if (!repo)
-		return 0;
-	
-	LUA->CheckString(2);
+	CHECK_REPO(repo)
 
-	const char* path = LUA->GetString(2);
+	const char* path = LUA->CheckString(2);
 	
 	unsigned int status;
 	try {
@@ -209,8 +202,7 @@ int LuaBridge::FileStatus(lua_State* state) {
 
 int LuaBridge::Status(lua_State* state) {
 	Repository* repo = fetchRepository(state);
-	if (!repo)
-		return 0;
+	CHECK_REPO(repo)
 
 	RepositoryStatus* status;
 	try {
@@ -293,8 +285,7 @@ int LuaBridge::Status(lua_State* state) {
 
 int LuaBridge::Log(lua_State* state) {
 	Repository* repo = fetchRepository(state);
-	if (!repo)
-		return 0;
+	CHECK_REPO(repo)
 
 	RepositoryLog* log;
 	try {
@@ -336,8 +327,7 @@ int LuaBridge::Log(lua_State* state) {
 
 int LuaBridge::Free(lua_State* state) {
 	Repository* repo = fetchRepository(state);
-	if (!repo)
-		return 0;
+	CHECK_REPO(repo)
 
 	repo->Free();
 	repo = NULL;
