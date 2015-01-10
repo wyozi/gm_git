@@ -97,5 +97,7 @@ GMOD_MODULE_OPEN() {
 }
 
 GMOD_MODULE_CLOSE() {
+	git_threads_shutdown();
+
 	return 0;
 }
