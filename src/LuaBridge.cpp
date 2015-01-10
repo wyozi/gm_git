@@ -141,18 +141,18 @@ int LuaBridge::AddPathSpecToIndex(lua_State* state) {
 	return 0;
 }
 
-int LuaBridge::AddToIndex(lua_State* state) {
+int LuaBridge::AddIndexEntry(lua_State* state) {
 	Repository* repo = fetchRepository(state);
 	if (!repo)
 		return 0;
 	
 	if (!LUA->IsType(2, GarrysMod::Lua::Type::STRING)) {
-		LUA->ThrowError("AddToIndex requires a string argument");
+		LUA->ThrowError("AddIndexEntry requires a string argument");
 		return 0;
 	}
 	
 	try {
-		repo->AddToIndex(std::string(LUA->GetString(2)));
+		repo->AddIndexEntry(std::string(LUA->GetString(2)));
 	} catch (GitError e) {
 		return pushErrorString(state, e);
 	}
@@ -160,18 +160,18 @@ int LuaBridge::AddToIndex(lua_State* state) {
 	return 0;
 }
 
-int LuaBridge::RemoveFromIndex(lua_State* state) {
+int LuaBridge::RemoveIndexEntry(lua_State* state) {
 	Repository* repo = fetchRepository(state);
 	if (!repo)
 		return 0;
 	
 	if (!LUA->IsType(2, GarrysMod::Lua::Type::STRING)) {
-		LUA->ThrowError("RemoveFromIndex requires a string argument");
+		LUA->ThrowError("RemoveIndexEntry requires a string argument");
 		return 0;
 	}
 	
 	try {
-		repo->RemoveFromIndex(std::string(LUA->GetString(2)));
+		repo->RemoveIndexEntry(std::string(LUA->GetString(2)));
 	} catch (GitError e) {
 		return pushErrorString(state, e);
 	}

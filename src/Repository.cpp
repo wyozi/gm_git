@@ -457,7 +457,7 @@ void Repository::AddPathSpecToIndex(std::string pathspec) {
 	if (error < 0) throw GitError(error);
 }
 
-void Repository::AddToIndex(std::string path) {
+void Repository::AddIndexEntry(std::string path) {
 	git_index *idx = NULL;
 	int error = git_repository_index(&idx, repo);
 	if (error < 0) throw GitError(error);
@@ -469,7 +469,7 @@ void Repository::AddToIndex(std::string path) {
 	if (error < 0) throw GitError(error);
 }
 
-void Repository::RemoveFromIndex(std::string path) {
+void Repository::RemoveIndexEntry(std::string path) {
 	git_index *idx = NULL;
 	int error = git_repository_index(&idx, repo);
 	if (error < 0) throw GitError(error);

@@ -68,11 +68,11 @@ void CreateRepositoryMetatable(lua_State* state) {
 		LUA->PushCFunction(LuaBridge::AddPathSpecToIndex);
 		LUA->SetField(-2, "AddPathSpecToIndex");
 
-		LUA->PushCFunction(LuaBridge::AddToIndex);
-		LUA->SetField(-2, "AddToIndex");
+		LUA->PushCFunction(LuaBridge::AddIndexEntry);
+		LUA->SetField(-2, "AddIndexEntry");
 
-		LUA->PushCFunction(LuaBridge::RemoveFromIndex);
-		LUA->SetField(-2, "RemoveFromIndex");
+		LUA->PushCFunction(LuaBridge::RemoveIndexEntry);
+		LUA->SetField(-2, "RemoveIndexEntry");
 
 		LUA->PushCFunction(LuaBridge::FileStatus);
 		LUA->SetField(-2, "FileStatus");

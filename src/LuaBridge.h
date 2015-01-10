@@ -12,8 +12,8 @@ namespace LuaBridge {
 
 	int IndexEntries(lua_State* state);
 	int AddPathSpecToIndex(lua_State* state);
-	int AddToIndex(lua_State* state);
-	int RemoveFromIndex(lua_State* state);
+	int AddIndexEntry(lua_State* state);
+	int RemoveIndexEntry(lua_State* state);
 
 	int FileStatus(lua_State* state);
 	int Status(lua_State* state);

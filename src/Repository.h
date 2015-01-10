@@ -87,8 +87,8 @@ public:
 
 	std::vector<std::string> GetIndexEntries();
 	void AddPathSpecToIndex(std::string pathspec);
-	void AddToIndex(std::string path);
-	void RemoveFromIndex(std::string path);
+	void AddIndexEntry(std::string path);
+	void RemoveIndexEntry(std::string path);
 
 	void Free();
 	
