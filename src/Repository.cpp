@@ -500,6 +500,21 @@ int diff_callback(const git_diff_delta *delta,
 	diff_cb_data* cbdata = static_cast<diff_cb_data*>(payload);
 
 	std::string str = std::string(line->content, line->content_len);
+
+	switch (line->origin) {
+	case GIT_DIFF_LINE_ADDITION:
+	case GIT_DIFF_LINE_ADD_EOFNL:
+		cbdata->stream << "+";
+		break;
+	case GIT_DIFF_LINE_DELETION:
+	case GIT_DIFF_LINE_DEL_EOFNL:
+		cbdata->stream << "-";
+		break;
+	default:
+		cbdata->stream << " ";
+		break;
+	}
+
 	cbdata->stream << str;
 
 	return 0;
