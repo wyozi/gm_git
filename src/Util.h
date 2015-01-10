@@ -2,9 +2,12 @@
 
 #include "Module.h"
 
-namespace Wyozi {
-	namespace Util {
-		std::string GitErrorToString(int error);
+namespace Util {
+	namespace Git {
+		std::string ErrorToString(int error);
+	}
+
+	namespace GLua {
 		void PrintMessage(lua_State* state, char* str);
 	}
-};
+}

@@ -10,7 +10,7 @@ Repository * fetchRepository(lua_State* state) {
 
 int pushErrorString(lua_State* state, const GitError& e) {
 	LUA->PushBool(false);
-	LUA->PushString(Wyozi::Util::GitErrorToString(e.error).c_str());
+	LUA->PushString(Util::Git::ErrorToString(e.error).c_str());
 	return 2;
 }
 

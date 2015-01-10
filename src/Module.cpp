@@ -15,7 +15,7 @@ int gmod_OpenRepo(lua_State* state) {
 		repo_object = new Repository(std::string(repo_path));
 	} catch (GitError e) {
 		LUA->PushBool(false);
-		LUA->PushString(Wyozi::Util::GitErrorToString(e.error).c_str());
+		LUA->PushString(Util::Git::ErrorToString(e.error).c_str());
 		return 2;
 	}
 
