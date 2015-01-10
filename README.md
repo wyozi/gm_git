@@ -5,6 +5,10 @@ gm_git
 
 gm_git is a binary module for Garry's Mod, that makes it possible to fetch, merge, push, commit etc git repositories. See https://github.com/wyozi/g-ace for an example usecase.
 
+## Usage
+
+API is not stable. See [LuaBridge.cpp](../blob/master/src/LuaBridge.cpp).
+
 ## Building
 
 ### Requirements
