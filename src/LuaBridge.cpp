@@ -8,6 +8,12 @@ Repository * fetchRepository(lua_State* state) {
 	return *(Repository**)LUA->GetUserdata(1);
 }
 
+int pushErrorString(lua_State* state, const GitError& e) {
+	LUA->PushBool(false);
+	LUA->PushString(Wyozi::Util::GitErrorToString(e.error).c_str());
+	return 2;
+}
+
 int LuaBridge::Fetch(lua_State* state) {
 	Repository* repo = fetchRepository(state);
 	if (!repo)
@@ -17,9 +23,7 @@ int LuaBridge::Fetch(lua_State* state) {
 	try {
 		repo->Fetch(remotename);
 	} catch (GitError e) {
-		LUA->PushBool(false);
-		LUA->PushString(Wyozi::Util::GitErrorToString(e.error).c_str());
-		return 2;
+		return pushErrorString(state, e);
 	}
 
 	LUA->PushBool(true);
@@ -35,9 +39,7 @@ int LuaBridge::Push(lua_State* state) {
 	try {
 		repo->Push(remotename);
 	} catch (GitError e) {
-		LUA->PushBool(false);
-		LUA->PushString(Wyozi::Util::GitErrorToString(e.error).c_str());
-		return 2;
+		return pushErrorString(state, e);
 	}
 
 	LUA->PushBool(true);
@@ -65,9 +67,7 @@ int LuaBridge::Commit(lua_State* state) {
 	try {
 		commitcode = repo->Commit(&opts);
 	} catch (GitError e) {
-		LUA->PushBool(false);
-		LUA->PushString(Wyozi::Util::GitErrorToString(e.error).c_str());
-		return 2;
+		return pushErrorString(state, e);
 	}
 
 	if (commitcode == GMGIT_COMMIT_NOCHANGES) {
@@ -89,9 +89,7 @@ int LuaBridge::Pull(lua_State* state) {
 	try {
 		repo->Pull(remotename);
 	} catch (GitError e) {
-		LUA->PushBool(false);
-		LUA->PushString(Wyozi::Util::GitErrorToString(e.error).c_str());
-		return 2;
+		return pushErrorString(state, e);
 	}
 
 	LUA->PushBool(true);
@@ -109,9 +107,7 @@ int LuaBridge::IndexEntries(lua_State* state) {
 		try {
 			entry_paths = repo->GetIndexEntries();
 		} catch (GitError e) {
-			LUA->PushBool(false);
-			LUA->PushString(Wyozi::Util::GitErrorToString(e.error).c_str());
-			return 2;
+			return pushErrorString(state, e);
 		}
 
 		int i = 1;
@@ -139,9 +135,7 @@ int LuaBridge::AddPathSpecToIndex(lua_State* state) {
 	try {
 		repo->AddPathSpecToIndex(std::string(LUA->GetString(2)));
 	} catch (GitError e) {
-		LUA->PushBool(false);
-		LUA->PushString(Wyozi::Util::GitErrorToString(e.error).c_str());
-		return 2;
+		return pushErrorString(state, e);
 	}
 
 	return 0;
@@ -160,9 +154,7 @@ int LuaBridge::AddToIndex(lua_State* state) {
 	try {
 		repo->AddToIndex(std::string(LUA->GetString(2)));
 	} catch (GitError e) {
-		LUA->PushBool(false);
-		LUA->PushString(Wyozi::Util::GitErrorToString(e.error).c_str());
-		return 2;
+		return pushErrorString(state, e);
 	}
 
 	return 0;
@@ -181,9 +173,7 @@ int LuaBridge::RemoveFromIndex(lua_State* state) {
 	try {
 		repo->RemoveFromIndex(std::string(LUA->GetString(2)));
 	} catch (GitError e) {
-		LUA->PushBool(false);
-		LUA->PushString(Wyozi::Util::GitErrorToString(e.error).c_str());
-		return 2;
+		return pushErrorString(state, e);
 	}
 
 	return 0;
@@ -205,9 +195,7 @@ int LuaBridge::FileStatus(lua_State* state) {
 	try {
 		status = repo->GetFileStatus(std::string(path));
 	} catch (GitError e) {
-		LUA->PushBool(false);
-		LUA->PushString(Wyozi::Util::GitErrorToString(e.error).c_str());
-		return 2;
+		return pushErrorString(state, e);
 	}
 	
 	std::string type;
@@ -240,9 +228,7 @@ int LuaBridge::Status(lua_State* state) {
 	try {
 		status = repo->GetStatus();
 	} catch (GitError e) {
-		LUA->PushBool(false);
-		LUA->PushString(Wyozi::Util::GitErrorToString(e.error).c_str());
-		return 2;
+		return pushErrorString(state, e);
 	}
 	
 	LUA->CreateTable();
@@ -326,9 +312,7 @@ int LuaBridge::Log(lua_State* state) {
 	try {
 		log = repo->GetLog();
 	} catch (GitError e) {
-		LUA->PushBool(false);
-		LUA->PushString(Wyozi::Util::GitErrorToString(e.error).c_str());
-		return 2;
+		return pushErrorString(state, e);
 	}
 	
 	LUA->CreateTable();
