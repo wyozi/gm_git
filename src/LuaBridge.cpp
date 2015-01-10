@@ -253,7 +253,7 @@ int LuaBridge::Status(lua_State* state) {
 		}
 		LUA->SetTable(-3);
 
-		LUA->PushString("WorkDirChanges");
+		LUA->PushString("WorkdirChanges");
 		LUA->CreateTable();
 		
 		i = 1;
