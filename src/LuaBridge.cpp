@@ -368,6 +368,7 @@ int LuaBridge::Free(lua_State* state) {
 		return 0;
 
 	repo->Free();
+	repo = NULL;
 
 	return 1;
 }

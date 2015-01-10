@@ -1,7 +1,3 @@
-
-//
-// Called when you module is opened
-//
 #include "Module.h"
 
 int gmod_OpenRepo(lua_State* state) {
@@ -51,6 +47,9 @@ void CreateRepositoryMetatable(lua_State* state) {
 		LUA->Push(-1);
 		LUA->SetField(-2, "__index");
 		
+		LUA->PushCFunction(LuaBridge::Free);
+		LUA->SetField(-2, "__gc");
+
 		LUA->PushCFunction(LuaBridge::Fetch);
 		LUA->SetField(-2, "Fetch");
 
@@ -83,10 +82,6 @@ void CreateRepositoryMetatable(lua_State* state) {
 
 		LUA->PushCFunction(LuaBridge::Log);
 		LUA->SetField(-2, "Log");
-
-		LUA->PushCFunction(LuaBridge::Free);
-		LUA->SetField(-2, "Free");
-
 	LUA->Pop();
 }
 
@@ -102,9 +97,7 @@ void CreateGModLibrary(lua_State* state) {
 	LUA->Pop();
 }
 
-GMOD_MODULE_OPEN()
-{
-
+GMOD_MODULE_OPEN() {
 	git_threads_init();
 
 	CreateRepositoryMetatable(state);
@@ -113,7 +106,6 @@ GMOD_MODULE_OPEN()
 	return 0;
 }
 
-GMOD_MODULE_CLOSE()
-{
+GMOD_MODULE_CLOSE() {
 	return 0;
 }
