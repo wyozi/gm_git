@@ -7,7 +7,7 @@ gm_git is a binary module for Garry's Mod, that makes it possible to fetch, merg
 
 ## Usage
 
-API is not stable. See [LuaBridge.cpp](../blob/master/src/LuaBridge.cpp).
+API is not stable. See [LuaBridge.cpp](../master/src/LuaBridge.cpp).
 
 ## Building
 
