@@ -127,10 +127,7 @@ int LuaBridge::AddPathSpecToIndex(lua_State* state) {
 	if (!repo)
 		return 0;
 	
-	if (!LUA->IsType(2, GarrysMod::Lua::Type::STRING)) {
-		LUA->ThrowError("AddPathSpecToIndex requires a string argument");
-		return 0;
-	}
+	LUA->CheckString(2);
 	
 	try {
 		repo->AddPathSpecToIndex(std::string(LUA->GetString(2)));
@@ -146,10 +143,7 @@ int LuaBridge::AddIndexEntry(lua_State* state) {
 	if (!repo)
 		return 0;
 	
-	if (!LUA->IsType(2, GarrysMod::Lua::Type::STRING)) {
-		LUA->ThrowError("AddIndexEntry requires a string argument");
-		return 0;
-	}
+	LUA->CheckString(2);
 	
 	try {
 		repo->AddIndexEntry(std::string(LUA->GetString(2)));
@@ -165,10 +159,7 @@ int LuaBridge::RemoveIndexEntry(lua_State* state) {
 	if (!repo)
 		return 0;
 	
-	if (!LUA->IsType(2, GarrysMod::Lua::Type::STRING)) {
-		LUA->ThrowError("RemoveIndexEntry requires a string argument");
-		return 0;
-	}
+	LUA->CheckString(2);
 	
 	try {
 		repo->RemoveIndexEntry(std::string(LUA->GetString(2)));
@@ -184,10 +175,7 @@ int LuaBridge::FileStatus(lua_State* state) {
 	if (!repo)
 		return 0;
 	
-	if (!LUA->IsType(2, GarrysMod::Lua::Type::STRING)) {
-		LUA->ThrowError("FileStatus requires a string argument");
-		return 0;
-	}
+	LUA->CheckString(2);
 
 	const char* path = LUA->GetString(2);
 	

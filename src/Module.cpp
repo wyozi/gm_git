@@ -1,12 +1,7 @@
 #include "Module.h"
 
 int gmod_OpenRepo(lua_State* state) {
-	if (!LUA->IsType(1, GarrysMod::Lua::Type::STRING)) {
-		LUA->PushNil();
-		return 1;
-	}
-
-	const char* repo_path = LUA->GetString(1);
+	const char* repo_path = LUA->CheckString(1);
 
 	Repository** repo;
 	Repository* repo_object;
@@ -30,12 +25,7 @@ int gmod_OpenRepo(lua_State* state) {
 }
 
 int gmod_IsRepo(lua_State* state) {
-	if (!LUA->IsType(1, GarrysMod::Lua::Type::STRING)) {
-		LUA->PushBool(false);
-		return 1;
-	}
-
-	const char* repo_path = LUA->GetString(1);
+	const char* repo_path = LUA->CheckString(1);
 	LUA->PushBool(git_repository_open_ext(NULL, repo_path, GIT_REPOSITORY_OPEN_NO_SEARCH, NULL) == 0);
 
 	return 1;
