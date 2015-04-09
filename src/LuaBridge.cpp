@@ -18,15 +18,34 @@ int pushErrorString(lua_State* state, const GitError& e) {
 	return 2;
 }
 
-int LuaBridge::Fetch(lua_State* state) {
+int LuaBridge::Commit(lua_State* state) {
 	Repository* repo = fetchRepository(state);
 	CHECK_REPO(repo)
 
-	const char* remotename = LUA->IsType(2, GarrysMod::Lua::Type::STRING) ? LUA->GetString(2) : "origin";
+		const char* commitmsg = LUA->IsType(2, GarrysMod::Lua::Type::STRING) ? LUA->GetString(2) : "";
+
+	int commitcode;
+
+	// Don't use CommitOptions* opts = new CommitOptions;
+	// It crashes for some reason.
+	// Probably some scrub reason I feel stupid about after I figure out what it is
+	CommitOptions opts = {};
+
+	if (LUA->IsType(2, GarrysMod::Lua::Type::STRING)) opts.commitmsg = LUA->GetString(2);
+	if (LUA->IsType(3, GarrysMod::Lua::Type::STRING)) opts.committer_name = LUA->GetString(3);
+	if (LUA->IsType(4, GarrysMod::Lua::Type::STRING)) opts.committer_email = LUA->GetString(4);
+
 	try {
-		repo->Fetch(remotename);
-	} catch (GitError e) {
+		commitcode = repo->Commit(&opts);
+	}
+	catch (GitError e) {
 		return pushErrorString(state, e);
+	}
+
+	if (commitcode == GMGIT_COMMIT_NOCHANGES) {
+		LUA->PushBool(false);
+		LUA->PushString("no changes in index");
+		return 2;
 	}
 
 	LUA->PushBool(true);
@@ -47,40 +66,6 @@ int LuaBridge::Push(lua_State* state) {
 	LUA->PushBool(true);
 	return 1;
 }
-
-int LuaBridge::Commit(lua_State* state) {
-	Repository* repo = fetchRepository(state);
-	CHECK_REPO(repo)
-
-	const char* commitmsg = LUA->IsType(2, GarrysMod::Lua::Type::STRING) ? LUA->GetString(2) : "";
-
-	int commitcode;
-	
-	// Don't use CommitOptions* opts = new CommitOptions;
-	// It crashes for some reason.
-	// Probably some scrub reason I feel stupid about after I figure out what it is
-	CommitOptions opts = {};
-
-	if (LUA->IsType(2, GarrysMod::Lua::Type::STRING)) opts.commitmsg = LUA->GetString(2);
-	if (LUA->IsType(3, GarrysMod::Lua::Type::STRING)) opts.committer_name = LUA->GetString(3);
-	if (LUA->IsType(4, GarrysMod::Lua::Type::STRING)) opts.committer_email = LUA->GetString(4);
-
-	try {
-		commitcode = repo->Commit(&opts);
-	} catch (GitError e) {
-		return pushErrorString(state, e);
-	}
-
-	if (commitcode == GMGIT_COMMIT_NOCHANGES) {
-		LUA->PushBool(false);
-		LUA->PushString("no changes in index");
-		return 2;
-	}
-
-	LUA->PushBool(true);
-	return 1;
-}
-
 int LuaBridge::Pull(lua_State* state) {
 	Repository* repo = fetchRepository(state);
 	CHECK_REPO(repo)

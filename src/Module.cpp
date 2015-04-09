@@ -52,14 +52,11 @@ void CreateRepositoryMetatable(lua_State* state) {
 		LUA->PushCFunction(LuaBridge::Free);
 		LUA->SetField(-2, "__gc");
 
-		LUA->PushCFunction(LuaBridge::Fetch);
-		LUA->SetField(-2, "Fetch");
+		LUA->PushCFunction(LuaBridge::Commit);
+		LUA->SetField(-2, "Commit");
 
 		LUA->PushCFunction(LuaBridge::Push);
 		LUA->SetField(-2, "Push");
-
-		LUA->PushCFunction(LuaBridge::Commit);
-		LUA->SetField(-2, "Commit");
 
 		LUA->PushCFunction(LuaBridge::Pull);
 		LUA->SetField(-2, "Pull");

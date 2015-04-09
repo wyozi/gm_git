@@ -4,10 +4,8 @@
 #include "Repository.h"
 
 namespace LuaBridge {
-	int Fetch(lua_State* state);
-	int Push(lua_State* state);
-	
 	int Commit(lua_State* state);
+	int Push(lua_State* state);
 	int Pull(lua_State* state);
 
 	int IndexEntries(lua_State* state);
