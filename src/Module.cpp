@@ -113,7 +113,7 @@ void CreateGModLibrary(lua_State* state) {
 }
 
 GMOD_MODULE_OPEN() {
-	git_threads_init();
+	git_libgit2_init();
 
 	CreateRepositoryMetatable(state);
 	CreateGModLibrary(state);
@@ -122,7 +122,7 @@ GMOD_MODULE_OPEN() {
 }
 
 GMOD_MODULE_CLOSE() {
-	git_threads_shutdown();
+	git_libgit2_shutdown();
 
 	return 0;
 }

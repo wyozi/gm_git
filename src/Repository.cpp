@@ -22,10 +22,10 @@ std::string Repository::GetPassword() {
 
 void Repository::Fetch(std::string remotename) {
 	git_remote* remote = NULL;
-	int error = git_remote_load(&remote, repo, remotename.c_str());
+	int error = git_remote_lookup(&remote, repo, remotename.c_str());
 	if (error < 0) throw GitError(error);
 
-	error = git_remote_fetch(remote, NULL, NULL);
+	error = git_remote_fetch(remote, NULL, NULL, NULL);
 	if (error < 0) throw GitError(error);
 
 	git_remote_free(remote);
@@ -51,7 +51,7 @@ int credential_cb(git_cred **out,
 }
 void Repository::Push(std::string remotename) {
 	git_remote* remote = NULL;
-	int error = git_remote_load(&remote, repo, remotename.c_str());
+	int error = git_remote_lookup(&remote, repo, remotename.c_str());
 	if (error < 0) throw GitError(error);
 
 	git_remote_callbacks callbacks = GIT_REMOTE_CALLBACKS_INIT;
@@ -65,18 +65,20 @@ void Repository::Push(std::string remotename) {
 	error = git_remote_connect(remote, GIT_DIRECTION_PUSH);
 	if (error < 0) throw GitError(error);
 
+	// Create refspec strarray
+	char *refspecs_arr = "refs/heads/master:refs/heads/master";
+
+	git_strarray* refspecs = new git_strarray;
+	refspecs->count = 1;
+	refspecs->strings = &refspecs_arr;
+
+	// Create push options
+	git_push_options* push_opts = NULL;
+	error = git_push_init_options(push_opts, GIT_PUSH_OPTIONS_VERSION);
+	if (error < 0) throw GitError(error);
+
 	// Create push object
-	git_push *push = NULL;
-	error = git_push_new(&push, remote);
-	if (error < 0) throw GitError(error);
-	
-	// TODO this needs to be settable by the user somehow
-	git_push_add_refspec(push, "refs/heads/master:refs/heads/master");
-
-	error = git_push_finish(push);
-	if (error < 0) throw GitError(error);
-
-	error = git_push_unpack_ok(push);
+	error = git_remote_upload(remote, refspecs, push_opts);
 	if (error < 0) throw GitError(error);
 
 	git_signature *signature = NULL;
@@ -84,10 +86,9 @@ void Repository::Push(std::string remotename) {
 	error = git_signature_default(&signature, repo);
 	if (error < 0) throw GitError(error);
 
-	error = git_push_update_tips(push, signature, NULL);
+	error = git_remote_update_tips(remote, signature, NULL);
 	if (error < 0) throw GitError(error);
 
-	git_push_free(push);
 	git_remote_free(remote);
 	git_signature_free(signature);
 }
@@ -188,8 +189,8 @@ void Repository::Merge(MergeOptions* merge_options) {
 	
 	co_opts.checkout_strategy = GIT_CHECKOUT_SAFE_CREATE;
 	
-	git_merge_head** pointer = merge_options->annotated_commits.data();
-	const git_merge_head** const_pointer = const_cast<const git_merge_head**>(pointer);
+	git_annotated_commit** pointer = merge_options->annotated_commits.data();
+	const git_annotated_commit** const_pointer = const_cast<const git_annotated_commit**>(pointer);
 
 	std::cout << &pointer << std::endl;
 
@@ -202,7 +203,7 @@ void Repository::Merge(MergeOptions* merge_options) {
 
 	// TODO Not sure how git works, but we get the first viable git_merge_head from the vector and use the ref from that
 	if (merge_options->annotated_commits.size() > 0) {
-		const git_oid* commit_oid = git_merge_head_id(pointer[0]);
+		const git_oid* commit_oid = git_annotated_commit_id(pointer[0]);
 
 		git_commit *merge_head;
 		error = git_commit_lookup(&merge_head, repo, commit_oid);
@@ -220,16 +221,16 @@ void Repository::Merge(MergeOptions* merge_options) {
 struct fetchhead_cb_data {
 	git_repository* repo;
 	const char* branch;
-	std::vector<git_merge_head*> annotated_commits;
+	std::vector<git_annotated_commit*> annotated_commits;
 };
 
 int fetchhead_callback(const char* ref_name, const char* remote_url, const git_oid* oid, unsigned int is_merge, void *payload) {
 	fetchhead_cb_data* cbdata = static_cast<fetchhead_cb_data*>(payload);
 
 	if (is_merge) {
-		git_merge_head* commit;
+		git_annotated_commit* commit;
 
-		int error = git_merge_head_from_fetchhead(&commit, cbdata->repo, cbdata->branch, remote_url, oid);
+		int error = git_annotated_commit_from_fetchhead(&commit, cbdata->repo, cbdata->branch, remote_url, oid);
 		if (error < 0) throw GitError(error);
 
 		cbdata->annotated_commits.push_back(commit);
@@ -257,7 +258,7 @@ void Repository::Pull(std::string remotename) {
 
 	git_repository_fetchhead_foreach(repo, &fetchhead_callback, static_cast<void*>(cbdata));
 	
-	std::vector<git_merge_head*> annotated_commits = cbdata->annotated_commits;
+	std::vector<git_annotated_commit*> annotated_commits = cbdata->annotated_commits;
 
 	MergeOptions* merge_options = new MergeOptions;
 
@@ -396,10 +397,13 @@ RepositoryLog* Repository::GetLog() {
 
 		// Oid as a 40 char SHA-1 char pointer
 		const git_oid *oid = git_commit_id(commit);
-		char *oidsha = git_oid_allocfmt(oid);
-		entry->ref = std::string(oidsha);
 
-		free(oidsha);
+		char *hex_string = new char[41];
+		git_oid_fmt(hex_string, oid);
+
+		entry->ref = std::string(hex_string);
+
+		free(hex_string);
 
 		// Commit message
 		entry->commitmsg = git_commit_message(commit);

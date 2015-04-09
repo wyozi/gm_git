@@ -35,7 +35,7 @@ struct CommitOptions {
 struct MergeOptions {
 	std::string branch;
 	std::string commitmsg;
-	std::vector<git_merge_head*> annotated_commits;
+	std::vector<git_annotated_commit*> annotated_commits;
 };
 
 struct RepositoryStatusEntry {
