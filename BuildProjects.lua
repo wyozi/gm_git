@@ -15,7 +15,7 @@ solution "gmsv_git"
 		links {"../libgit2/build/Debug/git2"}
 	elseif os.is("linux") then
 		targetsuffix ("_linux")
-		links {"libgit2/build/git2"}
+		links {"libgit2/build/git2", "ssl", "z"}
 		buildoptions "-std=c++0x"
 	end
 
