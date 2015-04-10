@@ -66,19 +66,16 @@ void Repository::Push(std::string remotename) {
 	if (error < 0) throw GitError(error);
 
 	// Create refspec strarray
-	char *refspecs_arr = (char *) "refs/heads/master:refs/heads/master";
+	char *refspecs_arr[] = { "refs/heads/master:refs/heads/master" };
 
 	git_strarray* refspecs = new git_strarray;
 	refspecs->count = 1;
-	refspecs->strings = &refspecs_arr;
+	refspecs->strings = refspecs_arr;
 
-	// Create push options
-	git_push_options* push_opts = NULL;
-	error = git_push_init_options(push_opts, GIT_PUSH_OPTIONS_VERSION);
-	if (error < 0) throw GitError(error);
-
+	git_push_options push_opts = GIT_PUSH_OPTIONS_INIT;
+	
 	// Create push object
-	error = git_remote_upload(remote, refspecs, push_opts);
+	error = git_remote_upload(remote, refspecs, &push_opts);
 	if (error < 0) throw GitError(error);
 
 	git_signature *signature = NULL;
