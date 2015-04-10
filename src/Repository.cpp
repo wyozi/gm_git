@@ -66,7 +66,7 @@ void Repository::Push(std::string remotename) {
 	if (error < 0) throw GitError(error);
 
 	// Create refspec strarray
-	char *refspecs_arr = "refs/heads/master:refs/heads/master";
+	char *refspecs_arr = (char *) "refs/heads/master:refs/heads/master";
 
 	git_strarray* refspecs = new git_strarray;
 	refspecs->count = 1;
