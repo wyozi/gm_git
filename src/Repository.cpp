@@ -399,6 +399,7 @@ RepositoryLog* Repository::GetLog() {
 		const git_oid *oid = git_commit_id(commit);
 
 		char *hex_string = new char[41];
+		hex_string[40] = '\0'; // Null terminate; not done by libgit2
 		git_oid_fmt(hex_string, oid);
 
 		entry->ref = std::string(hex_string);
