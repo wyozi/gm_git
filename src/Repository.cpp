@@ -58,14 +58,12 @@ void Repository::Push(std::string remotename) {
 	
 	callbacks.credentials = credential_cb;
 	callbacks.payload = this;
-	error = git_remote_set_callbacks(remote, &callbacks);
-	if (error < 0) throw GitError(error);
 
 	// Connect to remote
-	error = git_remote_connect(remote, GIT_DIRECTION_PUSH);
+	error = git_remote_connect(remote, GIT_DIRECTION_PUSH, &callbacks, NULL);
 	if (error < 0) throw GitError(error);
 
-	// Create refspec strarray
+	// Create a push refspec (atm hardcoded to push local master to remote master)
 	char *refspecs_arr[] = { "refs/heads/master:refs/heads/master" };
 
 	git_strarray* refspecs = new git_strarray;
@@ -83,7 +81,7 @@ void Repository::Push(std::string remotename) {
 	error = git_signature_default(&signature, repo);
 	if (error < 0) throw GitError(error);
 
-	error = git_remote_update_tips(remote, signature, NULL);
+	error = git_remote_update_tips(remote, &callbacks, 1, GIT_REMOTE_DOWNLOAD_TAGS_UNSPECIFIED, NULL);
 	if (error < 0) throw GitError(error);
 
 	git_remote_free(remote);
@@ -184,7 +182,7 @@ void Repository::Merge(MergeOptions* merge_options) {
 	git_merge_options merge_opts = GIT_MERGE_OPTIONS_INIT;
 	git_checkout_options co_opts = GIT_CHECKOUT_OPTIONS_INIT;
 	
-	co_opts.checkout_strategy = GIT_CHECKOUT_SAFE_CREATE;
+	co_opts.checkout_strategy = GIT_CHECKOUT_SAFE;
 	
 	git_annotated_commit** pointer = merge_options->annotated_commits.data();
 	const git_annotated_commit** const_pointer = const_cast<const git_annotated_commit**>(pointer);

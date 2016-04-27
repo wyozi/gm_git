@@ -13,6 +13,10 @@ solution "gmsv_git"
 	if os.is("windows") then
 		targetsuffix ("_win32")
 		links {"../libgit2/build/Debug/git2"}
+
+		-- fix winhttp
+		links { "rpcrt4", "crypt32", "winhttp" }
+		linkoptions { "/NODEFAULTLIB:LIBCMTD" }
 	elseif os.is("linux") then
 		targetsuffix ("_linux")
 		links {"libgit2/build/git2", "ssl", "z"}

@@ -22,7 +22,7 @@ int LuaBridge::Commit(lua_State* state) {
 	Repository* repo = fetchRepository(state);
 	CHECK_REPO(repo)
 
-		const char* commitmsg = LUA->IsType(2, GarrysMod::Lua::Type::STRING) ? LUA->GetString(2) : "";
+	const char* commitmsg = LUA->IsType(2, GarrysMod::Lua::Type::STRING) ? LUA->GetString(2) : "";
 
 	int commitcode;
 
